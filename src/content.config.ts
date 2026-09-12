@@ -20,6 +20,7 @@ const agenda = defineCollection({
     collesParticipants: z.array(z.string()).default([]),
     mostrarPortada: z.boolean().default(false),
     estat: z.enum(['esborrany', 'revisio', 'publicat']).default('esborrany'),
+    cancelada: z.boolean().default(false),
     castells: z.array(castellFet).default([]),
   }),
 });
@@ -31,6 +32,7 @@ const noticies = defineCollection({
     data: z.coerce.date(),
     resum: z.string(),
     imatge: z.string().optional(),
+    estat: z.enum(['esborrany', 'revisio', 'publicat']).default('esborrany'),
   }),
 });
 
@@ -41,7 +43,19 @@ const galeria = defineCollection({
     data: z.coerce.date(),
     portada: z.string().optional(),
     fotos: z.array(z.string()).default([]),
+    estat: z.enum(['esborrany', 'revisio', 'publicat']).default('esborrany'),
   }),
 });
 
-export const collections = { agenda, noticies, galeria };
+const pagines = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/pagines' }),
+  schema: z.object({
+    titol: z.string(),
+    assajosHorari: z.string(),
+    assajosLloc: z.string(),
+    contacteEmail: z.string(),
+    contacteInstagram: z.string(),
+  }),
+});
+
+export const collections = { agenda, noticies, galeria, pagines };

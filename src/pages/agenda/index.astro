@@ -23,6 +23,7 @@ const base = import.meta.env.BASE_URL;
             <h2>{entry.data.nom}</h2>
             <div class="meta">{entry.data.hora} · {entry.data.lloc}, {entry.data.poblacio}</div>
           </div>
+          {entry.data.cancelada && <span class="pill pill-danger">Cancel·lada</span>}
           <span class="pill pill-neutral">{entry.data.tipus}</span>
         </a>
       ))}

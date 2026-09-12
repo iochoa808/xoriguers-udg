@@ -1,25 +1,27 @@
 ---
 import Base from '../layouts/Base.astro';
+import { getEntry, render } from 'astro:content';
+
+const pagina = await getEntry('pagines', 'la-colla');
+const { Content } = await render(pagina);
 ---
 <Base title="La colla">
   <div class="wrap">
     <div class="eyebrow">La colla</div>
-    <h1 class="display">Xoriguers UdG</h1>
-    <p class="lead">
-      Som la colla castellera de la Universitat de Girona. Fem assaig cada dimarts i dijous al Pavelló UdG,
-      i actuem arreu de Catalunya al llarg del curs. No cal experiència: qui vulgui provar-ho, hi és benvingut.
-    </p>
+    <h1 class="display">{pagina.data.titol}</h1>
+    <div class="lead">
+      <Content />
+    </div>
     <div class="grid">
       <div class="card">
         <div class="eyebrow">Assajos</div>
-        <p>Dimarts i dijous, 19:00 — Pavelló UdG, Girona.</p>
+        <p>{pagina.data.assajosHorari} — {pagina.data.assajosLloc}.</p>
       </div>
       <div class="card">
         <div class="eyebrow">Contacte</div>
-        <p>xoriguers@udg.cat · @xoriguersudg</p>
+        <p>{pagina.data.contacteEmail} · {pagina.data.contacteInstagram}</p>
       </div>
     </div>
-    <p class="note mono">[ contingut de mostra — a substituir amb el text real de la colla ]</p>
   </div>
 </Base>
 
@@ -30,5 +32,4 @@ import Base from '../layouts/Base.astro';
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 28px 0; }
   .card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; }
   .card p { margin: 8px 0 0; font-size: 0.9375rem; }
-  .note { font-size: 0.75rem; color: var(--ink-soft); }
 </style>

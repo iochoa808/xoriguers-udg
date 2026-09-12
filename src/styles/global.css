@@ -6,12 +6,15 @@
   --blue: #279cdb;
   --blue-deep: #1b7aae;
   --yellow: #f5b700;
+  --yellow-ink: #8a5f00;
   --line: #d7e8f0;
   --moss: #3f7d4a;
   --moss-bg: #e1f2e4;
   --yellow-bg: #fff3cf;
   --neutral-bg: #e8eef2;
   --neutral-ink: #62727a;
+  --danger: #b3261e;
+  --danger-bg: #fbe4e2;
 }
 
 * {
@@ -69,8 +72,9 @@ a:hover {
 }
 
 .pill-moss { background: var(--moss-bg); color: var(--moss); }
-.pill-gold { background: var(--yellow-bg); color: var(--yellow); }
+.pill-gold { background: var(--yellow-bg); color: var(--yellow-ink); }
 .pill-neutral { background: var(--neutral-bg); color: var(--neutral-ink); }
+.pill-danger { background: var(--danger-bg); color: var(--danger); }
 
 .btn {
   display: inline-flex;

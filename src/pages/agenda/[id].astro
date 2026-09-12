@@ -1,6 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
+import { mediaUrl } from '../../lib/media';
 
 export async function getStaticPaths() {
   const agenda = await getCollection('agenda', ({ data }) => data.estat === 'publicat');
@@ -25,9 +26,13 @@ const base = import.meta.env.BASE_URL;
 <Base title={entry.data.nom}>
   <div class="wrap">
     <a class="back mono" href={`${base}agenda`}>← Agenda</a>
-    <div class="eyebrow">{entry.data.tipus}</div>
+    <div class="eyebrow-row">
+      <div class="eyebrow">{entry.data.tipus}</div>
+      {entry.data.cancelada && <span class="pill pill-danger">Cancel·lada</span>}
+    </div>
     <h1 class="display">{entry.data.nom}</h1>
     <div class="meta">{formatDate(entry.data.data)} · {entry.data.hora} · {entry.data.lloc}, {entry.data.poblacio}</div>
+    {mediaUrl(base, entry.data.cartell) && <img class="cartell" src={mediaUrl(base, entry.data.cartell)} alt="" />}
     {entry.data.collesParticipants.length > 0 && (
       <div class="chips">
         {entry.data.collesParticipants.map((c: string) => <span class="chip">{c}</span>)}
@@ -56,8 +61,10 @@ const base = import.meta.env.BASE_URL;
 <style>
   .wrap { max-width: 720px; margin: 0 auto; padding: 40px 28px 60px; }
   .back { display: block; margin-bottom: 14px; color: var(--ink-soft); text-decoration: none; }
+  .eyebrow-row { display: flex; align-items: center; gap: 10px; }
   h1 { margin: 8px 0 10px; font-size: clamp(1.8rem, 4vw, 2.6rem); }
   .meta { font-size: 0.9375rem; color: var(--ink-soft); }
+  .cartell { width: 100%; max-height: 420px; object-fit: cover; border-radius: 8px; margin-top: 20px; }
   .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
   .chip { border: 1px solid var(--line); border-radius: 99px; padding: 5px 12px; font-size: 0.8125rem; background: #fff; }
   .body { margin-top: 28px; font-size: 1rem; line-height: 1.7; color: var(--ink); max-width: 65ch; }

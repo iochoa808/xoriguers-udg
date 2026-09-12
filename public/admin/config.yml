@@ -34,6 +34,7 @@ collections:
         widget: "select"
         options: ["esborrany", "revisio", "publicat"]
         default: "esborrany"
+      - { label: "Cancel·lada", name: "cancelada", widget: "boolean", default: false }
       - { label: "Descripció", name: "body", widget: "markdown" }
       - label: "Castells"
         name: "castells"
@@ -59,6 +60,11 @@ collections:
       - { label: "Data", name: "data", widget: "date" }
       - { label: "Resum", name: "resum", widget: "text" }
       - { label: "Imatge", name: "imatge", widget: "image", required: false }
+      - label: "Estat"
+        name: "estat"
+        widget: "select"
+        options: ["esborrany", "revisio", "publicat"]
+        default: "esborrany"
       - { label: "Cos", name: "body", widget: "markdown" }
 
   - name: "galeria"
@@ -76,3 +82,22 @@ collections:
         widget: "list"
         required: false
         field: { label: "Foto", name: "foto", widget: "image" }
+      - label: "Estat"
+        name: "estat"
+        widget: "select"
+        options: ["esborrany", "revisio", "publicat"]
+        default: "esborrany"
+
+  - name: "pagines"
+    label: "Pàgines"
+    files:
+      - name: "la_colla"
+        label: "La colla"
+        file: "src/content/pagines/la-colla.md"
+        fields:
+          - { label: "Títol", name: "titol", widget: "string" }
+          - { label: "Text principal", name: "body", widget: "markdown" }
+          - { label: "Horari d'assajos", name: "assajosHorari", widget: "string" }
+          - { label: "Lloc d'assajos", name: "assajosLloc", widget: "string" }
+          - { label: "Email de contacte", name: "contacteEmail", widget: "string" }
+          - { label: "Instagram", name: "contacteInstagram", widget: "string" }
