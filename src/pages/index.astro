@@ -1,0 +1,128 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const now = new Date();
+
+const agenda = await getCollection('agenda', ({ data }) => data.estat === 'publicat');
+const upcoming = agenda
+  .filter((e) => e.data.data >= now)
+  .sort((a, b) => a.data.data.getTime() - b.data.data.getTime());
+const properaActuacio = upcoming[0];
+
+const pastAmbCastells = agenda
+  .filter((e) => e.data.data <= now && e.data.castells.length > 0)
+  .sort((a, b) => b.data.data.getTime() - a.data.data.getTime());
+
+const ultimaActuacio = pastAmbCastells[0];
+const ultimsCastells = ultimaActuacio?.data.castells ?? [];
+
+function formatDate(d: Date) {
+  return new Intl.DateTimeFormat('ca-ES', { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
+}
+function formatDayMonth(d: Date) {
+  return new Intl.DateTimeFormat('ca-ES', { day: 'numeric', month: 'short' }).format(d).toUpperCase();
+}
+
+const pillClass = { descarregat: 'pill-moss', carregat: 'pill-gold', intent: 'pill-neutral' } as const;
+const pillLabel = { descarregat: 'Descarregat', carregat: 'Carregat', intent: 'Intent' } as const;
+
+const base = import.meta.env.BASE_URL;
+---
+<Base title="Inici">
+  <div class="hero">
+    <div class="hero-copy">
+      <h1 class="display">Fem castells.<br>Fem universitat.</h1>
+      <a class="btn btn-primary" href={`${base}la-colla`}>
+        Vine a assajar
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    {properaActuacio && (
+      <div class="card-row">
+        <div>
+          <div class="eyebrow">Propera actuació</div>
+          <div class="card-date display">{formatDayMonth(properaActuacio.data.data)}</div>
+        </div>
+        <div style="flex:1; min-width:180px;">
+          <h2>{properaActuacio.data.nom}</h2>
+          <div class="meta">{properaActuacio.data.hora} · {properaActuacio.data.lloc}, {properaActuacio.data.poblacio}</div>
+        </div>
+        <a class="card-link" href={`${base}agenda`}>
+          Veure agenda
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    )}
+
+    {ultimsCastells.length > 0 && (
+      <>
+        <div class="castells-head">
+          <div class="eyebrow">Últims castells</div>
+          <div class="meta">{ultimaActuacio!.data.nom} · {formatDate(ultimaActuacio!.data.data)}</div>
+        </div>
+        <div class="castells-row">
+          {ultimsCastells.map((c) => (
+            <div class="castell-tile">
+              <div class="notation display">{c.castell}</div>
+              <span class={`pill ${pillClass[c.estat]}`}>{pillLabel[c.estat]}</span>
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+  </div>
+
+  <div class="insta-strip">
+    <div>
+      <div class="eyebrow" style="color: var(--yellow)">Segueix-nos</div>
+      <h3>@xoriguersudg</h3>
+    </div>
+    <a href="https://instagram.com" target="_blank" rel="noreferrer">
+      Veure Instagram
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</Base>
+
+<style>
+  .hero {
+    position: relative;
+    margin: 24px 28px;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 16 / 7;
+    background:
+      linear-gradient(0deg, rgba(36,26,22,0.82), rgba(36,26,22,0.08) 60%),
+      repeating-linear-gradient(135deg, var(--blue-deep) 0px, var(--blue-deep) 22px, var(--blue) 22px, var(--blue) 44px);
+    display: flex;
+    align-items: flex-end;
+  }
+  .hero-copy { padding: 24px; color: var(--bg); }
+  .hero-copy h1 { font-size: clamp(1.8rem, 4.5vw, 3rem); line-height: 1; margin-bottom: 16px; }
+  .section { padding: 6px 28px 0; max-width: 1180px; margin: 0 auto; }
+  .card-row {
+    display: flex; gap: 24px; align-items: center; justify-content: space-between; flex-wrap: wrap;
+    background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 20px 24px; margin: 20px 0;
+  }
+  .card-date { font-size: 2.1rem; color: var(--blue); line-height: 1; }
+  .card-row h2 { font-size: 1.05rem; margin: 4px 0 2px; }
+  .meta { font-size: 0.8125rem; color: var(--ink-soft); }
+  .card-link { font-size: 0.8125rem; font-weight: 600; display: flex; align-items: center; gap: 6px; text-decoration: none; white-space: nowrap; }
+  .castells-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .castells-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin: 14px 0 32px; }
+  .castell-tile { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 18px; text-align: center; }
+  .notation { font-size: 2.4rem; line-height: 1; }
+  .insta-strip {
+    background: var(--ink); color: var(--bg); padding: 26px 28px;
+    display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap;
+  }
+  .insta-strip h3 { font-size: 1.15rem; margin-top: 6px; }
+  .insta-strip a { color: var(--bg); font-size: 0.8125rem; font-weight: 600; display: flex; align-items: center; gap: 6px; text-decoration: none; }
+  @media (max-width: 720px) {
+    .section, .site-nav { padding-left: 18px; padding-right: 18px; }
+  }
+</style>

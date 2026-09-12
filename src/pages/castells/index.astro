@@ -1,0 +1,101 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const agenda = await getCollection('agenda', ({ data }) => data.estat === 'publicat');
+
+const castells = agenda.flatMap((entry) =>
+  entry.data.castells.map((c) => ({
+    ...c,
+    data: entry.data.data,
+    actuacio: entry.data.nom,
+  }))
+);
+
+const counts = new Map<string, number>();
+for (const c of castells) {
+  counts.set(c.castell, (counts.get(c.castell) ?? 0) + 1);
+}
+const sortedCounts = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+
+function floors(notation: string) {
+  const match = notation.match(/d\s?(\d+)/i);
+  return match ? parseInt(match[1], 10) : 0;
+}
+
+const tallestEntry = [...castells].sort((a, b) => floors(b.castell) - floors(a.castell))[0];
+
+function formatDate(d: Date) {
+  return new Intl.DateTimeFormat('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+}
+
+const sortedByDate = [...castells].sort((a, b) => b.data.getTime() - a.data.getTime());
+const pillClass = { descarregat: 'pill-moss', carregat: 'pill-gold', intent: 'pill-neutral' } as const;
+const pillLabel = { descarregat: 'Descarregat', carregat: 'Carregat', intent: 'Intent' } as const;
+---
+<Base title="Castells">
+  <div class="wrap">
+    <div class="eyebrow">Castells</div>
+    <h1 class="display">Estadístiques</h1>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="label mono">Castell més alt</div>
+        <div class="big display">{tallestEntry?.castell ?? '—'}</div>
+        {tallestEntry && <div class="sub">{tallestEntry.actuacio} · {formatDate(tallestEntry.data)}</div>}
+      </div>
+      <div class="stat-card counts">
+        <div class="label mono">Recompte per tipus</div>
+        <div class="count-list">
+          {sortedCounts.map(([notation, n]) => (
+            <div class="count-row">
+              <span class="mono">{notation}</span>
+              <span class="bar"><span style={`width:${(n / sortedCounts[0][1]) * 100}%`}></span></span>
+              <span class="mono n">{n}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <h2 class="display section-title">Historial</h2>
+    <div class="list">
+      {sortedByDate.map((c) => (
+        <div class="row">
+          <div class="date mono">{formatDate(c.data)}</div>
+          <div class="notation display">{c.castell}</div>
+          <div class="info">
+            <div>{c.actuacio}</div>
+            {c.ronda && <div class="meta">Ronda {c.ronda}</div>}
+          </div>
+          <span class={`pill ${pillClass[c.estat]}`}>{pillLabel[c.estat]}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</Base>
+
+<style>
+  .wrap { max-width: 900px; margin: 0 auto; padding: 40px 28px 60px; }
+  h1 { margin: 10px 0 28px; font-size: clamp(1.8rem, 4vw, 2.6rem); }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 40px; }
+  .stat-card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 20px 22px; }
+  .label { font-size: 0.6875rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; }
+  .big { font-size: 2.6rem; color: var(--blue); line-height: 1; margin-top: 8px; }
+  .sub { font-size: 0.8125rem; color: var(--ink-soft); margin-top: 6px; }
+  .count-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+  .count-row { display: grid; grid-template-columns: 44px 1fr 24px; align-items: center; gap: 10px; font-size: 0.8125rem; }
+  .bar { background: var(--bg-deep); border-radius: 4px; height: 8px; overflow: hidden; }
+  .bar span { display: block; height: 100%; background: var(--blue); border-radius: 4px; }
+  .n { text-align: right; color: var(--ink-soft); }
+  .section-title { font-size: 1.4rem; margin-bottom: 16px; }
+  .list { display: flex; flex-direction: column; gap: 10px; }
+  .row {
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px;
+  }
+  .date { font-size: 0.8125rem; color: var(--ink-soft); width: 140px; flex: none; }
+  .notation { font-size: 1.4rem; width: 70px; flex: none; }
+  .info { flex: 1; min-width: 140px; font-size: 0.9375rem; }
+  .meta { font-size: 0.75rem; color: var(--ink-soft); }
+</style>

@@ -1,0 +1,44 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const noticies = await getCollection('noticies');
+const sorted = noticies.sort((a, b) => b.data.data.getTime() - a.data.data.getTime());
+
+function formatDate(d: Date) {
+  return new Intl.DateTimeFormat('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+}
+
+const base = import.meta.env.BASE_URL;
+---
+<Base title="Notícies">
+  <div class="wrap">
+    <div class="eyebrow">Notícies</div>
+    <h1 class="display">Últimes notícies</h1>
+    <div class="list">
+      {sorted.map((n) => (
+        <a class="row" href={`${base}noticies/${n.id}`}>
+          <div class="date mono">{formatDate(n.data.data)}</div>
+          <div class="info">
+            <h2>{n.data.titol}</h2>
+            <div class="meta">{n.data.resum}</div>
+          </div>
+        </a>
+      ))}
+    </div>
+  </div>
+</Base>
+
+<style>
+  .wrap { max-width: 800px; margin: 0 auto; padding: 40px 28px 60px; }
+  h1 { margin: 10px 0 28px; font-size: clamp(1.8rem, 4vw, 2.6rem); }
+  .list { display: flex; flex-direction: column; gap: 14px; }
+  .row {
+    display: flex; gap: 20px; flex-wrap: wrap; text-decoration: none; color: var(--ink);
+    background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px;
+  }
+  .row:hover { border-color: var(--blue); }
+  .date { font-size: 0.8125rem; color: var(--ink-soft); width: 140px; flex: none; }
+  .info h2 { font-size: 1.05rem; font-weight: 600; margin-bottom: 4px; }
+  .meta { font-size: 0.875rem; color: var(--ink-soft); }
+</style>

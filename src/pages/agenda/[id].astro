@@ -1,0 +1,69 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const agenda = await getCollection('agenda', ({ data }) => data.estat === 'publicat');
+  return agenda.map((entry) => ({
+    params: { id: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+function formatDate(d: Date) {
+  return new Intl.DateTimeFormat('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+}
+
+const pillClass = { descarregat: 'pill-moss', carregat: 'pill-gold', intent: 'pill-neutral' } as const;
+const pillLabel = { descarregat: 'Descarregat', carregat: 'Carregat', intent: 'Intent' } as const;
+
+const base = import.meta.env.BASE_URL;
+---
+<Base title={entry.data.nom}>
+  <div class="wrap">
+    <a class="back mono" href={`${base}agenda`}>← Agenda</a>
+    <div class="eyebrow">{entry.data.tipus}</div>
+    <h1 class="display">{entry.data.nom}</h1>
+    <div class="meta">{formatDate(entry.data.data)} · {entry.data.hora} · {entry.data.lloc}, {entry.data.poblacio}</div>
+    {entry.data.collesParticipants.length > 0 && (
+      <div class="chips">
+        {entry.data.collesParticipants.map((c: string) => <span class="chip">{c}</span>)}
+      </div>
+    )}
+    <div class="body">
+      <Content />
+    </div>
+    {entry.data.castells.length > 0 && (
+      <div class="castells">
+        <div class="eyebrow">Castells fets</div>
+        <div class="castells-row">
+          {entry.data.castells.map((c) => (
+            <div class="castell-tile">
+              <div class="notation display">{c.castell}</div>
+              <span class={`pill ${pillClass[c.estat]}`}>{pillLabel[c.estat]}</span>
+              {c.ronda && <div class="ronda mono">Ronda {c.ronda}</div>}
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</Base>
+
+<style>
+  .wrap { max-width: 720px; margin: 0 auto; padding: 40px 28px 60px; }
+  .back { display: block; margin-bottom: 14px; color: var(--ink-soft); text-decoration: none; }
+  h1 { margin: 8px 0 10px; font-size: clamp(1.8rem, 4vw, 2.6rem); }
+  .meta { font-size: 0.9375rem; color: var(--ink-soft); }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .chip { border: 1px solid var(--line); border-radius: 99px; padding: 5px 12px; font-size: 0.8125rem; background: #fff; }
+  .body { margin-top: 28px; font-size: 1rem; line-height: 1.7; color: var(--ink); max-width: 65ch; }
+  .castells { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line); }
+  .castells-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 14px; margin-top: 14px; }
+  .castell-tile { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 16px; text-align: center; }
+  .notation { font-size: 2rem; line-height: 1; }
+  .ronda { font-size: 0.6875rem; color: var(--ink-soft); margin-top: 8px; }
+</style>

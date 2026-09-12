@@ -1,0 +1,78 @@
+backend:
+  name: git-gateway
+  branch: main
+
+local_backend: true
+
+publish_mode: editorial_workflow
+
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "agenda"
+    label: "Agenda"
+    folder: "src/content/agenda"
+    create: true
+    identifier_field: "nom"
+    slug: "{{fields.nom}}"
+    fields:
+      - { label: "Nom", name: "nom", widget: "string" }
+      - { label: "Data", name: "data", widget: "date" }
+      - { label: "Hora", name: "hora", widget: "string" }
+      - { label: "Lloc", name: "lloc", widget: "string" }
+      - { label: "Població", name: "poblacio", widget: "string" }
+      - label: "Tipus"
+        name: "tipus"
+        widget: "select"
+        options: ["Actuacio", "Assaig", "Diada", "Trobada"]
+      - { label: "Cartell", name: "cartell", widget: "image", required: false }
+      - { label: "Colles participants", name: "collesParticipants", widget: "list", required: false }
+      - { label: "Mostrar a portada", name: "mostrarPortada", widget: "boolean", default: false }
+      - label: "Estat"
+        name: "estat"
+        widget: "select"
+        options: ["esborrany", "revisio", "publicat"]
+        default: "esborrany"
+      - { label: "Descripció", name: "body", widget: "markdown" }
+      - label: "Castells"
+        name: "castells"
+        widget: "list"
+        required: false
+        summary: "{{fields.castell}} · {{fields.estat}}"
+        fields:
+          - { label: "Castell", name: "castell", widget: "string", hint: "Notació: 4d8, 3d7, 2d6..." }
+          - label: "Estat"
+            name: "estat"
+            widget: "select"
+            options: ["descarregat", "carregat", "intent"]
+          - { label: "Ronda", name: "ronda", widget: "number", required: false, value_type: "int" }
+
+  - name: "noticies"
+    label: "Notícies"
+    folder: "src/content/noticies"
+    create: true
+    identifier_field: "titol"
+    slug: "{{fields.titol}}"
+    fields:
+      - { label: "Títol", name: "titol", widget: "string" }
+      - { label: "Data", name: "data", widget: "date" }
+      - { label: "Resum", name: "resum", widget: "text" }
+      - { label: "Imatge", name: "imatge", widget: "image", required: false }
+      - { label: "Cos", name: "body", widget: "markdown" }
+
+  - name: "galeria"
+    label: "Galeria"
+    folder: "src/content/galeria"
+    create: true
+    identifier_field: "nom"
+    slug: "{{fields.nom}}"
+    fields:
+      - { label: "Nom", name: "nom", widget: "string" }
+      - { label: "Data", name: "data", widget: "date" }
+      - { label: "Portada", name: "portada", widget: "image", required: false }
+      - label: "Fotos"
+        name: "fotos"
+        widget: "list"
+        required: false
+        field: { label: "Foto", name: "foto", widget: "image" }

@@ -1,0 +1,93 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <title>{title} · Xoriguers UdG</title>
+</head>
+<body>
+  <header class="site-nav">
+    <a class="site-brand" href={base}>
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" style="color: var(--blue)">
+        <circle cx="12" cy="3.4" r="1.7" />
+        <rect x="9" y="6.6" width="6" height="2.8" rx="0.5" />
+        <rect x="6.5" y="10.8" width="11" height="2.8" rx="0.5" />
+        <rect x="4" y="15" width="16" height="2.8" rx="0.5" />
+        <rect x="2" y="19.2" width="20" height="2" rx="0.5" />
+      </svg>
+      <span class="display site-brand-name">Xoriguers</span>
+      <span class="site-brand-tag mono">UdG</span>
+    </a>
+    <nav class="site-links">
+      <a href={`${base}agenda`}>Agenda</a>
+      <a href={`${base}la-colla`}>La colla</a>
+      <a href={`${base}castells`}>Castells</a>
+      <a href={`${base}galeria`}>Galeria</a>
+    </nav>
+  </header>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer class="site-footer mono">
+    Xoriguers UdG · Colla castellera universitària · Girona
+  </footer>
+
+  <style>
+    .site-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 28px;
+      border-bottom: 1px solid var(--line);
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .site-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--ink);
+    }
+    .site-brand-name { font-size: 1.15rem; letter-spacing: 0.02em; }
+    .site-brand-tag {
+      font-size: 0.625rem;
+      color: var(--ink-soft);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+    .site-links { display: flex; gap: 26px; flex-wrap: wrap; }
+    .site-links a {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .site-links a:hover { color: var(--blue-deep); }
+    .site-footer {
+      padding: 28px;
+      border-top: 1px solid var(--line);
+      margin-top: 40px;
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+      text-align: center;
+    }
+  </style>
+</body>
+</html>
