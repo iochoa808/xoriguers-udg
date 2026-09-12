@@ -1,0 +1,58 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+import { mediaUrl } from '../../lib/media';
+
+const persones = await getCollection('persones');
+const base = import.meta.env.BASE_URL;
+
+const categories = [
+  { key: 'Junta', label: 'Junta' },
+  { key: 'Cap de colla', label: 'Cap de colla' },
+  { key: 'Musics', label: 'Músics' },
+] as const;
+
+const grups = categories.map((cat) => ({
+  ...cat,
+  persones: persones
+    .filter((p) => p.data.categoria === cat.key)
+    .sort((a, b) => a.data.ordre - b.data.ordre),
+}));
+---
+<Base title="Equip">
+  <div class="wrap">
+    <div class="eyebrow">La colla</div>
+    <h1 class="display">Equip</h1>
+
+    {grups.map((grup) => grup.persones.length > 0 && (
+      <section class="grup">
+        <h2 class="display">{grup.label}</h2>
+        <div class="grid">
+          {grup.persones.map((p) => {
+            const foto = mediaUrl(base, p.data.foto);
+            return (
+              <div class="persona">
+                {foto ? <img class="foto" src={foto} alt="" /> : <div class="foto placeholder"></div>}
+                <div class="nom">{p.data.nom}</div>
+                <div class="carrec mono">{p.data.carrec}</div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    ))}
+  </div>
+</Base>
+
+<style>
+  .wrap { max-width: 960px; margin: 0 auto; padding: 40px 28px 60px; }
+  h1 { margin: 10px 0 32px; font-size: clamp(1.8rem, 4vw, 2.6rem); }
+  .grup { margin-bottom: 40px; }
+  .grup h2 { font-size: 1.4rem; margin-bottom: 18px; color: var(--blue-deep); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; }
+  .persona { text-align: center; }
+  .foto { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 0 auto 10px; display: block; }
+  .foto.placeholder { background: var(--bg-deep); border: 1px solid var(--line); }
+  .nom { font-weight: 600; font-size: 0.9375rem; }
+  .carrec { font-size: 0.75rem; color: var(--ink-soft); margin-top: 2px; }
+</style>

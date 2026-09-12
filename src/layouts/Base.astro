@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { getEntry } from 'astro:content';
 
 interface Props {
   title: string;
@@ -7,6 +8,9 @@ interface Props {
 
 const { title } = Astro.props;
 const base = import.meta.env.BASE_URL;
+const config = await getEntry('configuracio', 'general');
+const socials = config?.data;
+const isRealUrl = (u?: string) => !!u && !u.startsWith('[');
 ---
 <!doctype html>
 <html lang="ca">
@@ -41,8 +45,17 @@ const base = import.meta.env.BASE_URL;
     <slot />
   </main>
 
-  <footer class="site-footer mono">
-    Xoriguers UdG · Colla castellera universitària · Girona
+  <footer class="site-footer">
+    <nav class="footer-links mono">
+      <a href={`${base}equip`}>Equip</a>
+      <a href={`${base}patrocinadors`}>Patrocinadors</a>
+      <a href={`${base}documents`}>Documents</a>
+      <a href={`${base}calendari`}>Calendari</a>
+      {isRealUrl(socials?.merchandiseUrl) && <a href={socials!.merchandiseUrl} target="_blank" rel="noreferrer">Botiga</a>}
+      {isRealUrl(socials?.youtubeUrl) && <a href={socials!.youtubeUrl} target="_blank" rel="noreferrer">YouTube</a>}
+      {isRealUrl(socials?.instagramUrl) && <a href={socials!.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>}
+    </nav>
+    <div class="footer-note mono">Xoriguers UdG · Colla castellera universitària · Girona</div>
   </footer>
 
   <style>
@@ -81,12 +94,29 @@ const base = import.meta.env.BASE_URL;
     }
     .site-links a:hover { color: var(--blue-deep); }
     .site-footer {
-      padding: 28px;
+      padding: 32px 28px;
       border-top: 1px solid var(--line);
       margin-top: 40px;
+      text-align: center;
+    }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+      margin-bottom: 16px;
+    }
+    .footer-links a {
+      font-size: 0.75rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      text-decoration: none;
+    }
+    .footer-links a:hover { color: var(--blue-deep); }
+    .footer-note {
       font-size: 0.75rem;
       color: var(--ink-soft);
-      text-align: center;
     }
   </style>
 </body>

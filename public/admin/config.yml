@@ -48,6 +48,7 @@ collections:
             widget: "select"
             options: ["descarregat", "carregat", "intent"]
           - { label: "Ronda", name: "ronda", widget: "number", required: false, value_type: "int" }
+          - { label: "Foto", name: "foto", widget: "image", required: false }
 
   - name: "noticies"
     label: "Notícies"
@@ -101,3 +102,62 @@ collections:
           - { label: "Lloc d'assajos", name: "assajosLloc", widget: "string" }
           - { label: "Email de contacte", name: "contacteEmail", widget: "string" }
           - { label: "Instagram", name: "contacteInstagram", widget: "string" }
+
+  - name: "persones"
+    label: "Equip"
+    folder: "src/content/persones"
+    create: true
+    identifier_field: "nom"
+    slug: "{{fields.nom}}"
+    fields:
+      - { label: "Nom", name: "nom", widget: "string" }
+      - { label: "Càrrec", name: "carrec", widget: "string", hint: "Ex: Presidenta, Cap de colla, Graller..." }
+      - label: "Categoria"
+        name: "categoria"
+        widget: "select"
+        options: ["Junta", "Cap de colla", "Musics"]
+      - { label: "Foto", name: "foto", widget: "image", required: false }
+      - { label: "Ordre", name: "ordre", widget: "number", required: false, value_type: "int", hint: "Per ordenar dins la categoria (menor primer)" }
+
+  - name: "patrocinadors"
+    label: "Patrocinadors"
+    folder: "src/content/patrocinadors"
+    create: true
+    identifier_field: "nom"
+    slug: "{{fields.nom}}"
+    fields:
+      - { label: "Nom", name: "nom", widget: "string" }
+      - { label: "Logotip", name: "logo", widget: "image", required: false }
+      - { label: "Web", name: "url", widget: "string", required: false }
+      - { label: "Ordre", name: "ordre", widget: "number", required: false, value_type: "int" }
+
+  - name: "documents"
+    label: "Documents"
+    folder: "src/content/documents"
+    create: true
+    identifier_field: "titol"
+    slug: "{{fields.titol}}"
+    fields:
+      - { label: "Títol", name: "titol", widget: "string" }
+      - label: "Categoria"
+        name: "categoria"
+        widget: "select"
+        options: ["Estatuts", "Reglament", "Protocol", "Altres"]
+      - { label: "Fitxer (PDF)", name: "fitxer", widget: "file" }
+      - { label: "Data", name: "data", widget: "date", required: false }
+
+  - name: "configuracio"
+    label: "Configuració"
+    files:
+      - name: "general"
+        label: "Configuració general"
+        file: "src/content/configuracio/general.md"
+        fields:
+          - { label: "URL Instagram", name: "instagramUrl", widget: "string", required: false }
+          - { label: "URL YouTube", name: "youtubeUrl", widget: "string", required: false }
+          - { label: "URL botiga (merchandising)", name: "merchandiseUrl", widget: "string", required: false }
+          - label: "URL d'inserció de Google Calendar"
+            name: "googleCalendarEmbedUrl"
+            widget: "string"
+            required: false
+            hint: "URL del calendari de Google Calendar en mode 'Insereix' (Configuració > Integra el calendari)"
