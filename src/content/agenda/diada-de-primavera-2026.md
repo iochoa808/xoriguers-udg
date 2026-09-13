@@ -7,8 +7,10 @@ poblacio: Girona
 tipus: Diada
 collesParticipants:
   - Xoriguers
-mostrarPortada: false
+  - Penjats
+mostrarPortada: true
 estat: publicat
+cancelada: false
 castells:
   - castell: 5d7
     estat: descarregat
