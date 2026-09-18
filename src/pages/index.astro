@@ -38,12 +38,16 @@ const base = import.meta.env.BASE_URL;
 ---
 <Base title="Inici">
   <div class="hero">
-    <div class="hero-copy">
+    <div class="hero-panel">
+      <span class="badge">Xoriguers · UdG</span>
       <h1 class="display">Fem castells.<br>Fem universitat.</h1>
-      <a class="btn btn-primary" href={`${base}la-colla`}>
+      <a class="btn btn-accent" href={`${base}la-colla`}>
         Vine a assajar
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
+    </div>
+    <div class="hero-photo">
+      <div class="hero-caption mono">fotografia — assaig de tardor, pati de lletres</div>
     </div>
   </div>
 
@@ -100,33 +104,53 @@ const base = import.meta.env.BASE_URL;
 
 <style>
   .hero {
-    position: relative;
-    margin: 24px 28px;
-    border-radius: 8px;
-    overflow: hidden;
-    aspect-ratio: 16 / 7;
-    background:
-      linear-gradient(0deg, rgba(36,26,22,0.82), rgba(36,26,22,0.08) 60%),
-      repeating-linear-gradient(135deg, var(--blue-deep) 0px, var(--blue-deep) 22px, var(--blue) 22px, var(--blue) 44px);
-    display: flex;
-    align-items: flex-end;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    margin: 0 0 4px;
+    min-height: 420px;
   }
-  .hero-copy { padding: 24px; color: var(--bg); }
-  .hero-copy h1 { font-size: clamp(1.8rem, 4.5vw, 3rem); line-height: 1; margin-bottom: 16px; }
-  .section { padding: 6px 28px 0; max-width: 1180px; margin: 0 auto; }
+  .hero-panel {
+    background: var(--blue-deep);
+    color: var(--bg);
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 22px;
+  }
+  .hero-panel h1 { font-size: clamp(2.2rem, 4.2vw, 3.6rem); line-height: 0.98; }
+  .hero-photo {
+    position: relative;
+    overflow: hidden;
+    background: repeating-linear-gradient(135deg, var(--ink) 0px, var(--ink) 22px, #2c3e46 22px, #2c3e46 44px);
+  }
+  .hero-caption {
+    position: absolute;
+    left: 16px;
+    bottom: 14px;
+    font-size: 0.6875rem;
+    font-style: italic;
+    color: rgba(255,255,255,0.7);
+  }
+  .section { padding: 40px 28px 0; max-width: 1180px; margin: 0 auto; }
   .card-row {
     display: flex; gap: 24px; align-items: center; justify-content: space-between; flex-wrap: wrap;
-    background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 20px 24px; margin: 20px 0;
+    background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--blue); border-radius: 8px; padding: 20px 24px; margin: 20px 0;
   }
   .card-cartell { width: 64px; height: 64px; object-fit: cover; border-radius: 6px; flex: none; }
-  .card-date { font-size: 2.1rem; color: var(--blue); line-height: 1; }
+  .card-date { font-size: 2.6rem; color: var(--blue-deep); line-height: 1; }
   .card-row h2 { font-size: 1.05rem; margin: 4px 0 2px; }
   .meta { font-size: 0.8125rem; color: var(--ink-soft); }
   .card-link { font-size: 0.8125rem; font-weight: 600; display: flex; align-items: center; gap: 6px; text-decoration: none; white-space: nowrap; }
   .castells-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
   .castells-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin: 14px 0 32px; }
-  .castell-tile { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 18px; text-align: center; }
-  .notation { font-size: 2.4rem; line-height: 1; }
+  .castell-tile { background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--blue); border-radius: 8px; padding: 18px; text-align: center; }
+  .notation { font-size: 2.8rem; line-height: 1; }
+  @media (max-width: 720px) {
+    .hero { grid-template-columns: 1fr; min-height: 0; }
+    .hero-photo { aspect-ratio: 16/9; }
+  }
   .insta-strip {
     background: var(--ink); color: var(--bg); padding: 26px 28px;
     display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap;

@@ -46,6 +46,14 @@ for (const c of castells) {
 }
 const temporades = [...perTemporada.entries()].sort((a, b) => b[0] - a[0]);
 
+const perActuacio = new Map<string, { nom: string; data: Date; n: number }>();
+for (const c of castells) {
+  const prev = perActuacio.get(c.actuacioId);
+  if (prev) prev.n += 1;
+  else perActuacio.set(c.actuacioId, { nom: c.actuacio, data: c.data, n: 1 });
+}
+const millorDiada = [...perActuacio.values()].sort((a, b) => b.n - a.n)[0];
+
 const ambFoto = castells.filter((c) => mediaUrl(base, c.foto));
 ---
 <Base title="Castells">
@@ -59,6 +67,13 @@ const ambFoto = castells.filter((c) => mediaUrl(base, c.foto));
         <div class="big display">{tallestEntry?.castell ?? '—'}</div>
         {tallestEntry && <div class="sub">{tallestEntry.actuacio} · {formatDate(tallestEntry.data)}</div>}
       </div>
+      {millorDiada && (
+        <div class="stat-card">
+          <div class="label mono">Millor diada</div>
+          <div class="big display">{millorDiada.n} <span class="unit">castells</span></div>
+          <div class="sub">{millorDiada.nom} · {formatDate(millorDiada.data)}</div>
+        </div>
+      )}
       <div class="stat-card counts">
         <div class="label mono">Recompte per tipus</div>
         <div class="count-list">
@@ -116,12 +131,13 @@ const ambFoto = castells.filter((c) => mediaUrl(base, c.foto));
 </Base>
 
 <style>
-  .wrap { max-width: 900px; margin: 0 auto; padding: 40px 28px 60px; }
-  h1 { margin: 10px 0 28px; font-size: clamp(1.8rem, 4vw, 2.6rem); }
-  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 40px; }
-  .stat-card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 20px 22px; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 40px 28px 60px; }
+  h1 { margin: 10px 0 28px; font-size: clamp(2rem, 4.5vw, 3rem); }
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 40px; }
+  .stat-card { background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--blue); border-radius: 8px; padding: 22px; }
   .label { font-size: 0.6875rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; }
-  .big { font-size: 2.6rem; color: var(--blue); line-height: 1; margin-top: 8px; }
+  .big { font-size: 3rem; color: var(--blue-deep); line-height: 1; margin-top: 10px; }
+  .big .unit { font-size: 1.1rem; text-transform: none; letter-spacing: 0; color: var(--ink-soft); }
   .sub { font-size: 0.8125rem; color: var(--ink-soft); margin-top: 6px; }
   .count-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
   .count-row { display: grid; grid-template-columns: 44px 1fr 24px; align-items: center; gap: 10px; font-size: 0.8125rem; }
