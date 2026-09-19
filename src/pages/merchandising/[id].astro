@@ -32,8 +32,9 @@ const primeraDisponible = talles.findIndex((t) => t.estoc > 0);
 const totsEsgotats = talles.length > 0 && primeraDisponible === -1;
 const tallaPerDefecte = primeraDisponible >= 0 ? talles[primeraDisponible].talla : talles[0]?.talla;
 const reservaHref = email ? buildMailto(email, entry.data.nom, tallaPerDefecte) : undefined;
+const descripcio = disponible ? `${entry.data.nom} — ${entry.data.preu}€` : `${entry.data.nom} — Fora de termini`;
 ---
-<Base title={entry.data.nom} showHeader={false}>
+<Base title={entry.data.nom} description={descripcio} heroImage={principal} showHeader={false}>
   <div class="wrap">
     <a class="back mono" href={`${base}merchandising`}>← Merchandising</a>
 

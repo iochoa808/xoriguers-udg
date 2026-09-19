@@ -134,6 +134,7 @@ const configuracio = defineCollection({
     contacteComercialEmail: z.string().optional(),
     contacteComercialNom: z.string().optional(),
     capceleraImatge: z.string().optional(),
+    descripcioGeneral: z.string().optional(),
   }),
 });
 

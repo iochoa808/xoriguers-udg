@@ -14,8 +14,9 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const base = import.meta.env.BASE_URL;
+const descripcio = `${entry.data.fotos.length} fotografies · ${formatDate(entry.data.data)}`;
 ---
-<Base title={entry.data.nom} showHeader={false}>
+<Base title={entry.data.nom} description={descripcio} heroImage={mediaUrl(base, entry.data.portada)} showHeader={false}>
   <div class="wrap">
     <a class="back mono" href={`${base}galeria`}>← Galeria</a>
     <div class="eyebrow">{formatDate(entry.data.data)}</div>

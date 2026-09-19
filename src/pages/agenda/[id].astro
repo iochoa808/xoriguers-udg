@@ -19,8 +19,9 @@ const pillClass = { descarregat: 'pill-moss', carregat: 'pill-gold', intent: 'pi
 const pillLabel = { descarregat: 'Descarregat', carregat: 'Carregat', intent: 'Intent' } as const;
 
 const base = import.meta.env.BASE_URL;
+const descripcio = `${formatDate(entry.data.data)} · ${entry.data.lloc}, ${entry.data.poblacio}`;
 ---
-<Base title={entry.data.nom} showHeader={false}>
+<Base title={entry.data.nom} description={descripcio} heroImage={mediaUrl(base, entry.data.cartell)} showHeader={false}>
   <div class="wrap">
     <a class="back mono" href={`${base}agenda`}>← Agenda</a>
     <div class="eyebrow-row">

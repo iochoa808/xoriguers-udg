@@ -327,3 +327,4 @@ collections:
           - { label: "Email de contacte comercial/patrocinis", name: "contacteComercialEmail", widget: "string", required: false }
           - { label: "Nom del responsable de patrocinis", name: "contacteComercialNom", widget: "string", required: false, hint: "Ex: Responsable de patrocinis" }
           - { label: "Fotografia de capçalera", name: "capceleraImatge", widget: "image", required: false, hint: "Imatge de fons que es mostra a la capçalera de totes les pàgines (llevat de l'inici)" }
+          - { label: "Descripció general (SEO)", name: "descripcioGeneral", widget: "text", required: false, hint: "S'utilitza com a meta descripció a les pàgines que no en tenen una de pròpia (per exemple quan es comparteix l'enllaç a xarxes). Recomanat: 1-2 frases curtes." }
