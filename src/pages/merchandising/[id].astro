@@ -35,7 +35,10 @@ function buildMailto(email: string, nom: string, talla?: string) {
   return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-const reservaHref = email ? buildMailto(email, entry.data.nom, talles[0]?.talla) : undefined;
+const primeraDisponible = talles.findIndex((t) => t.estoc > 0);
+const totsEsgotats = talles.length > 0 && primeraDisponible === -1;
+const tallaPerDefecte = primeraDisponible >= 0 ? talles[primeraDisponible].talla : talles[0]?.talla;
+const reservaHref = email ? buildMailto(email, entry.data.nom, tallaPerDefecte) : undefined;
 ---
 <Base title={entry.data.nom} showHeader={false}>
   <div class="wrap">
@@ -59,17 +62,22 @@ const reservaHref = email ? buildMailto(email, entry.data.nom, talles[0]?.talla)
       <div class="talles">
         <div class="eyebrow">Talla</div>
         <div class="talles-row">
-          {talles.map((t, i) => (
-            <label class="talla-btn">
-              <input type="radio" name="talla" value={t.talla} checked={i === 0} />
-              <span class="talla-content mono">{t.talla} <span class="estoc">{t.estoc}</span></span>
-            </label>
-          ))}
+          {talles.map((t, i) => {
+            const esgotat = t.estoc <= 0;
+            return (
+              <label class="talla-btn">
+                <input type="radio" name="talla" value={t.talla} checked={i === primeraDisponible} disabled={esgotat} />
+                <span class="talla-content mono">{t.talla} <span class="estoc">{esgotat ? 'Esgotat' : t.estoc}</span></span>
+              </label>
+            );
+          })}
         </div>
       </div>
     )}
 
-    {disponible && reservaHref && (
+    {disponible && totsEsgotats && <p class="sense-estoc">Sense estoc disponible ara mateix.</p>}
+
+    {disponible && reservaHref && !totsEsgotats && (
       <a id="reserva-link" class="btn btn-accent" href={reservaHref}>
         Reserva
       </a>
@@ -120,4 +128,9 @@ const reservaHref = email ? buildMailto(email, entry.data.nom, talles[0]?.talla)
   .talla-btn input:checked + .talla-content { background: var(--ink); color: #fff; border-color: var(--ink); }
   .talla-btn input:checked + .talla-content .estoc { background: rgba(255, 255, 255, 0.2); color: #fff; }
   .talla-btn input:focus-visible + .talla-content { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .talla-btn input:disabled { cursor: not-allowed; }
+  .talla-btn input:disabled + .talla-content { color: var(--ink-soft); border-style: dashed; text-decoration: line-through; }
+  .talla-btn input:disabled + .talla-content .estoc { text-decoration: none; }
+  .talla-btn:has(input:disabled) { cursor: not-allowed; }
+  .sense-estoc { color: var(--ink-soft); font-size: 0.9375rem; }
 </style>
