@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { getEntry, render } from 'astro:content';
 import { mediaUrl } from '../lib/media';
+import { isRealUrl } from '../lib/config';
 
 const pagina = await getEntry('pagines', 'la-colla');
 const { Content } = await render(pagina);
@@ -14,14 +15,18 @@ const imatge = mediaUrl(base, pagina.data.imatge);
       <Content />
     </div>
     <div class="grid">
-      <div class="card">
-        <div class="eyebrow">Assajos</div>
-        <p>{pagina.data.assajosHorari} — {pagina.data.assajosLloc}.</p>
-      </div>
-      <div class="card">
-        <div class="eyebrow">Contacte</div>
-        <p>{pagina.data.contacteEmail} · {pagina.data.contacteInstagram}</p>
-      </div>
+      {(isRealUrl(pagina.data.assajosHorari) || isRealUrl(pagina.data.assajosLloc)) && (
+        <div class="card">
+          <div class="eyebrow">Assajos</div>
+          <p>{[pagina.data.assajosHorari, pagina.data.assajosLloc].filter((v) => isRealUrl(v)).join(' — ')}.</p>
+        </div>
+      )}
+      {(isRealUrl(pagina.data.contacteEmail) || isRealUrl(pagina.data.contacteInstagram)) && (
+        <div class="card">
+          <div class="eyebrow">Contacte</div>
+          <p>{[pagina.data.contacteEmail, pagina.data.contacteInstagram].filter((v) => isRealUrl(v)).join(' · ')}</p>
+        </div>
+      )}
     </div>
   </div>
 </Base>
