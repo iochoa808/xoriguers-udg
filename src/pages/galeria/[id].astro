@@ -23,7 +23,7 @@ const base = import.meta.env.BASE_URL;
     <div class="photo-grid">
       {entry.data.fotos.map((foto) =>
         isUploadedPath(foto) ? (
-          <img class="photo" src={mediaUrl(base, foto)} alt="" />
+          <img class="photo" src={mediaUrl(base, foto)} alt="" loading="lazy" />
         ) : (
           <div class="photo placeholder"></div>
         )

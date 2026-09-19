@@ -24,7 +24,7 @@ const { Content: IntroContent } = await render(capcalera!);
         const cover = mediaUrl(base, album.data.portada);
         return (
           <a class="album" href={`${base}galeria/${album.id}`}>
-            {cover ? <img class="cover" src={cover} alt="" /> : <div class={`cover pattern-${i % 3}`}></div>}
+            {cover ? <img class="cover" src={cover} alt="" loading="lazy" /> : <div class={`cover pattern-${i % 3}`}></div>}
             <h2>{album.data.nom}</h2>
             <div class="meta">{formatDate(album.data.data)} · {album.data.fotos.length} fotografies</div>
           </a>

@@ -34,7 +34,7 @@ const productes = (await getCollection('productes')).sort((a, b) => a.data.ordre
           const disponible = p.data.estat === 'Disponible';
           return (
             <a class="producte" data-cat={p.data.categoria} href={`${base}merchandising/${p.id}`}>
-              {foto ? <img class="foto" src={foto} alt="" /> : <div class="foto placeholder"></div>}
+              {foto ? <img class="foto" src={foto} alt="" loading="lazy" /> : <div class="foto placeholder"></div>}
               <div class="nom">{p.data.nom}</div>
               {disponible ? (
                 <>

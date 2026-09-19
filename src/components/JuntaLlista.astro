@@ -31,7 +31,7 @@ const base = import.meta.env.BASE_URL;
           const foto = mediaUrl(base, m.foto);
           return (
             <div class="persona">
-              {foto ? <img class="foto" src={foto} alt="" /> : <div class="foto placeholder"></div>}
+              {foto ? <img class="foto" src={foto} alt="" loading="lazy" /> : <div class="foto placeholder"></div>}
               <div class="nom">{m.nom} {m.cognom}</div>
               {m.malnom && <div class="malnom">{m.malnom}</div>}
               <div class="carrec mono">{m.carrec}</div>

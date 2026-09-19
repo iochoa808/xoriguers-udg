@@ -32,7 +32,7 @@ const { Content: IntroContent } = await render(introPagina!);
         const Tag = hasUrl ? 'a' : 'div';
         return (
           <Tag class="card" href={hasUrl ? p.data.url : undefined} target={hasUrl ? '_blank' : undefined} rel={hasUrl ? 'noreferrer' : undefined}>
-            {logo ? <img class="logo" src={logo} alt={p.data.nom} /> : <div class="logo placeholder mono">{p.data.nom}</div>}
+            {logo ? <img class="logo" src={logo} alt={p.data.nom} loading="lazy" /> : <div class="logo placeholder mono">{p.data.nom}</div>}
           </Tag>
         );
       })}

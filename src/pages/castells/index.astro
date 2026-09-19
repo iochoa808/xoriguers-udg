@@ -103,7 +103,7 @@ const ambFoto = castells.filter((c) => mediaUrl(base, c.foto));
         <div class="photo-grid">
           {ambFoto.map((c) => (
             <a class="photo-tile" href={`${base}agenda/${c.actuacioId}`}>
-              <img src={mediaUrl(base, c.foto)} alt={c.castell} />
+              <img src={mediaUrl(base, c.foto)} alt={c.castell} loading="lazy" />
               <span class="tag mono">{c.castell}</span>
             </a>
           ))}
