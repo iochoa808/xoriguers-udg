@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getCollection, getEntry } from 'astro:content';
 import { mediaUrl } from '../../lib/media';
 import { isRealUrl } from '../../lib/config';
+import { buildMailto } from '../../lib/mailto';
 
 export async function getStaticPaths() {
   const productes = await getCollection('productes');
@@ -26,14 +27,6 @@ const email = isRealUrl(config?.data.merchandiseEmail)
   : isRealUrl(laColla?.data.contacteEmail)
     ? laColla!.data.contacteEmail
     : undefined;
-
-function buildMailto(email: string, nom: string, talla?: string) {
-  const subject = talla ? `Reserva: ${nom} (Talla ${talla})` : `Reserva: ${nom}`;
-  const body = talla
-    ? `Hola,\n\nVoldria reservar aquest article:\n\n- Article: ${nom}\n- Talla: ${talla}\n\nGràcies!`
-    : `Hola,\n\nVoldria reservar aquest article:\n\n- Article: ${nom}\n\nGràcies!`;
-  return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}
 
 const primeraDisponible = talles.findIndex((t) => t.estoc > 0);
 const totsEsgotats = talles.length > 0 && primeraDisponible === -1;
@@ -78,7 +71,7 @@ const reservaHref = email ? buildMailto(email, entry.data.nom, tallaPerDefecte) 
     {disponible && totsEsgotats && <p class="sense-estoc">Sense estoc disponible ara mateix.</p>}
 
     {disponible && reservaHref && !totsEsgotats && (
-      <a id="reserva-link" class="btn btn-accent" href={reservaHref}>
+      <a id="reserva-link" class="btn btn-accent" href={reservaHref} data-nom={entry.data.nom} data-email={email}>
         Reserva
       </a>
     )}
@@ -86,16 +79,17 @@ const reservaHref = email ? buildMailto(email, entry.data.nom, tallaPerDefecte) 
 </Base>
 
 {disponible && email && talles.length > 0 && (
-  <script define:vars={{ nom: entry.data.nom, email }}>
-    function buildMailto(nom, talla, email) {
-      const subject = `Reserva: ${nom} (Talla ${talla})`;
-      const body = `Hola,\n\nVoldria reservar aquest article:\n\n- Article: ${nom}\n- Talla: ${talla}\n\nGràcies!`;
-      return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    }
+  <script>
+    import { buildMailto } from '../../lib/mailto';
+
     const link = document.getElementById('reserva-link');
-    document.querySelectorAll('input[name="talla"]').forEach((radio) => {
+    document.querySelectorAll<HTMLInputElement>('input[name="talla"]').forEach((radio) => {
       radio.addEventListener('change', () => {
-        if (link && radio.checked) link.setAttribute('href', buildMailto(nom, radio.value, email));
+        const nom = link?.dataset.nom;
+        const email = link?.dataset.email;
+        if (link && radio.checked && nom && email) {
+          link.setAttribute('href', buildMailto(email, nom, radio.value));
+        }
       });
     });
   </script>
