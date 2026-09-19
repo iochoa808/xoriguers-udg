@@ -2,13 +2,10 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection, getEntry, render } from 'astro:content';
 import { mediaUrl } from '../../lib/media';
+import { formatDate } from '../../lib/format';
 
 const noticies = await getCollection('noticies', ({ data }) => data.estat === 'publicat');
 const sorted = noticies.sort((a, b) => b.data.data.getTime() - a.data.data.getTime());
-
-function formatDate(d: Date) {
-  return new Intl.DateTimeFormat('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
-}
 
 const base = import.meta.env.BASE_URL;
 const capcalera = await getEntry('pagines', 'noticies');

@@ -104,8 +104,6 @@ a:hover {
   text-decoration: none;
 }
 
-.btn-primary { background: var(--blue-deep); color: var(--bg); }
-.btn-primary:hover { background: var(--ink); color: var(--bg); }
 .btn-outline { background: transparent; border: 1px solid var(--ink); color: var(--ink); }
 .btn-accent { background: var(--yellow); color: var(--ink); }
 .btn-accent:hover { filter: brightness(0.92); }
