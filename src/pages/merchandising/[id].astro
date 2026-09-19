@@ -44,7 +44,7 @@ const reservaHref = email ? buildMailto(email, entry.data.nom, tallaPerDefecte) 
   <div class="wrap">
     <a class="back mono" href={`${base}merchandising`}>← Merchandising</a>
 
-    {principal ? <img class="foto-principal" src={principal} alt="" /> : <div class="foto-principal placeholder"></div>}
+    {principal ? <img class="foto-principal" src={principal} alt={entry.data.nom} /> : <div class="foto-principal placeholder"></div>}
     {extra.length > 0 && (
       <div class="thumbs">
         {extra.map((f) => <img src={f} alt="" />)}

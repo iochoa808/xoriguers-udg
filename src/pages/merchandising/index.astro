@@ -70,6 +70,13 @@ const productes = (await getCollection('productes')).sort((a, b) => a.data.ordre
   #f-complements:checked ~ .tabs label[for="f-complements"] {
     background: var(--ink); color: #fff;
   }
+  #f-tots:focus-visible ~ .tabs label[for="f-tots"],
+  #f-roba:focus-visible ~ .tabs label[for="f-roba"],
+  #f-dessuadora:focus-visible ~ .tabs label[for="f-dessuadora"],
+  #f-complements:focus-visible ~ .tabs label[for="f-complements"] {
+    outline: 2px solid var(--blue);
+    outline-offset: 2px;
+  }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
   .producte {
