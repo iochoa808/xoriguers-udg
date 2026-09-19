@@ -19,7 +19,8 @@ const agenda = await getCollection('agenda', ({ data }) => data.estat === 'publi
 const upcoming = agenda
   .filter((e) => e.data.data >= now && !e.data.cancelada)
   .sort((a, b) => a.data.data.getTime() - b.data.data.getTime());
-const properaActuacio = upcoming[0];
+const featured = upcoming.filter((e) => e.data.mostrarPortada);
+const properaActuacio = featured[0] ?? upcoming[0];
 
 const pastAmbCastells = agenda
   .filter((e) => e.data.data <= now && e.data.castells.length > 0)

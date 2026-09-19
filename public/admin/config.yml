@@ -50,7 +50,7 @@ collections:
         options: ["Actuacio", "Assaig", "Diada", "Trobada"]
       - { label: "Cartell", name: "cartell", widget: "image", required: false }
       - { label: "Colles participants", name: "collesParticipants", widget: "list", required: false }
-      - { label: "Mostrar a portada", name: "mostrarPortada", widget: "boolean", default: false }
+      - { label: "Mostrar a portada", name: "mostrarPortada", widget: "boolean", default: false, hint: "Si es marca, aquesta actuació es mostra a la portada com a propera actuació (encara que no sigui la més propera en data). Si cap actuació ho té marcat, es mostra automàticament la que ve abans." }
       - label: "Estat"
         name: "estat"
         widget: "select"
