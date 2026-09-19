@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
     "astro": "^7.3.2",
     "concurrently": "^10.0.5",
     "decap-server": "^3.11.2"
