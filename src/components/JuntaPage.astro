@@ -1,0 +1,38 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection, getEntry, render } from 'astro:content';
+import { mediaUrl } from '../lib/media';
+import JuntaLlista from './JuntaLlista.astro';
+
+interface Props {
+  title: string;
+  paginaId: 'junta-directiva' | 'junta-tecnica';
+  collection: 'juntaDirectiva' | 'juntaTecnica';
+}
+
+const { title, paginaId, collection } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const capcalera = await getEntry('pagines', paginaId);
+const heroImage = mediaUrl(base, capcalera?.data.imatge);
+const { Content: IntroContent } = await render(capcalera!);
+
+const temporades = (await getCollection(collection))
+  .map((e) => e.data)
+  .sort((a, b) => b.numeroTemporada - a.numeroTemporada);
+---
+<Base title={title} heroImage={heroImage}>
+  <div class="wrap">
+    {capcalera?.body?.trim() && (
+      <div class="lead">
+        <IntroContent />
+      </div>
+    )}
+    <JuntaLlista temporades={temporades} />
+  </div>
+</Base>
+
+<style>
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 40px 28px 60px; }
+  .lead { color: var(--ink-soft); margin-bottom: 28px; }
+  .lead :global(p) { margin: 0; }
+</style>
