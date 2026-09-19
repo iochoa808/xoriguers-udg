@@ -8,11 +8,15 @@
     "build": "astro build",
     "preview": "astro preview",
     "cms": "decap-server",
-    "dev:all": "concurrently -k \"npm:dev\" \"npm:cms\""
+    "dev:all": "concurrently -k \"npm:dev\" \"npm:cms\"",
+    "test": "vitest run"
   },
   "dependencies": {
     "astro": "^7.3.2",
     "concurrently": "^10.0.5",
     "decap-server": "^3.11.2"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.1"
   }
 }

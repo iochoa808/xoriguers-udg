@@ -2,12 +2,16 @@
 import Base from '../layouts/Base.astro';
 import { getCollection, getEntry } from 'astro:content';
 import { mediaUrl } from '../lib/media';
+import { isRealUrl } from '../lib/config';
+import { formatDateShort, formatDayMonth } from '../lib/format';
 
 const config = await getEntry('configuracio', 'general');
-const instagramUrl = config?.data.instagramUrl && !config.data.instagramUrl.startsWith('[')
-  ? config.data.instagramUrl
-  : undefined;
+const instagramUrl = isRealUrl(config?.data.instagramUrl) ? config!.data.instagramUrl : undefined;
 const instagramHandle = instagramUrl?.replace(/\/$/, '').split('/').pop();
+
+const inici = await getEntry('pagines', 'inici');
+const heroTitol = inici?.data.titol ?? 'Fem castells. Fem universitat.';
+const heroCtaText = inici?.data.ctaText || 'Vine a assajar';
 
 const now = new Date();
 
@@ -24,30 +28,27 @@ const pastAmbCastells = agenda
 const ultimaActuacio = pastAmbCastells[0];
 const ultimsCastells = ultimaActuacio?.data.castells ?? [];
 
-function formatDate(d: Date) {
-  return new Intl.DateTimeFormat('ca-ES', { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
-}
-function formatDayMonth(d: Date) {
-  return new Intl.DateTimeFormat('ca-ES', { day: 'numeric', month: 'short' }).format(d).toUpperCase();
-}
+const noticies = await getCollection('noticies', ({ data }) => data.estat === 'publicat');
+const ultimaNoticia = noticies.sort((a, b) => b.data.data.getTime() - a.data.data.getTime())[0];
 
 const pillClass = { descarregat: 'pill-moss', carregat: 'pill-gold', intent: 'pill-neutral' } as const;
 const pillLabel = { descarregat: 'Descarregat', carregat: 'Carregat', intent: 'Intent' } as const;
 
 const base = import.meta.env.BASE_URL;
+const heroImatge = mediaUrl(base, inici?.data.imatge);
 ---
 <Base title="Inici">
   <div class="hero">
     <div class="hero-panel">
       <span class="badge">Xoriguers · UdG</span>
-      <h1 class="display">Fem castells.<br>Fem universitat.</h1>
-      <a class="btn btn-accent" href={`${base}la-colla`}>
-        Vine a assajar
+      <h1 class="display">{heroTitol}</h1>
+      <a class="btn btn-accent" href={`${base}uneix-te`}>
+        {heroCtaText}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
       </a>
     </div>
     <div class="hero-photo">
-      <div class="hero-caption mono">fotografia — assaig de tardor, pati de lletres</div>
+      {heroImatge && <img class="hero-img" src={heroImatge} alt="" />}
     </div>
   </div>
 
@@ -76,7 +77,7 @@ const base = import.meta.env.BASE_URL;
       <>
         <div class="castells-head">
           <div class="eyebrow">Últims castells</div>
-          <div class="meta">{ultimaActuacio!.data.nom} · {formatDate(ultimaActuacio!.data.data)}</div>
+          <div class="meta">{ultimaActuacio!.data.nom} · {formatDateShort(ultimaActuacio!.data.data)}</div>
         </div>
         <div class="castells-row">
           {ultimsCastells.map((c) => (
@@ -87,6 +88,26 @@ const base = import.meta.env.BASE_URL;
           ))}
         </div>
       </>
+    )}
+
+    {ultimaNoticia && (
+      <a class="card-row noticia-row" href={`${base}noticies/${ultimaNoticia.id}`}>
+        {mediaUrl(base, ultimaNoticia.data.imatge) && (
+          <img class="card-cartell" src={mediaUrl(base, ultimaNoticia.data.imatge)} alt="" />
+        )}
+        <div>
+          <div class="eyebrow">Última notícia</div>
+          <div class="meta">{formatDateShort(ultimaNoticia.data.data)}</div>
+        </div>
+        <div style="flex:1; min-width:180px;">
+          <h2>{ultimaNoticia.data.titol}</h2>
+          <div class="meta">{ultimaNoticia.data.resum}</div>
+        </div>
+        <span class="card-link">
+          Llegir
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+        </span>
+      </a>
     )}
   </div>
 
@@ -125,14 +146,7 @@ const base = import.meta.env.BASE_URL;
     overflow: hidden;
     background: repeating-linear-gradient(135deg, var(--ink) 0px, var(--ink) 22px, #2c3e46 22px, #2c3e46 44px);
   }
-  .hero-caption {
-    position: absolute;
-    left: 16px;
-    bottom: 14px;
-    font-size: 0.6875rem;
-    font-style: italic;
-    color: rgba(255,255,255,0.7);
-  }
+  .hero-img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .section { padding: 40px 28px 0; max-width: 1180px; margin: 0 auto; }
   .card-row {
     display: flex; gap: 24px; align-items: center; justify-content: space-between; flex-wrap: wrap;
@@ -143,6 +157,9 @@ const base = import.meta.env.BASE_URL;
   .card-row h2 { font-size: 1.05rem; margin: 4px 0 2px; }
   .meta { font-size: 0.8125rem; color: var(--ink-soft); }
   .card-link { font-size: 0.8125rem; font-weight: 600; display: flex; align-items: center; gap: 6px; text-decoration: none; white-space: nowrap; }
+  .noticia-row { text-decoration: none; color: var(--ink); margin-bottom: 32px; }
+  .noticia-row:hover { border-left-color: var(--blue-deep); }
+  .noticia-row .card-link { color: var(--blue-deep); }
   .castells-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
   .castells-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin: 14px 0 32px; }
   .castell-tile { background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--blue); border-radius: 8px; padding: 18px; text-align: center; }

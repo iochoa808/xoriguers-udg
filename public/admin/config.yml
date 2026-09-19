@@ -114,32 +114,93 @@ collections:
   - name: "pagines"
     label: "Pàgines"
     files:
+      - name: "inici"
+        label: "Inici (portada)"
+        file: "src/content/pagines/inici.md"
+        fields:
+          - { label: "Titular principal", name: "titol", widget: "string", hint: "Es mostra en majúscules a la portada. No cal salt de línia, s'ajusta sol." }
+          - { label: "Text del botó", name: "ctaText", widget: "string", required: false, hint: "Per defecte: 'Vine a assajar'" }
+          - { label: "Fotografia de portada", name: "imatge", widget: "image", required: false, hint: "Si no se'n puja cap, es mostra un patró decoratiu." }
       - name: "la_colla"
         label: "La colla"
         file: "src/content/pagines/la-colla.md"
         fields:
           - { label: "Títol", name: "titol", widget: "string" }
           - { label: "Text principal", name: "body", widget: "markdown" }
+          - { label: "Fotografia", name: "imatge", widget: "image", required: false }
           - { label: "Horari d'assajos", name: "assajosHorari", widget: "string" }
           - { label: "Lloc d'assajos", name: "assajosLloc", widget: "string" }
           - { label: "Email de contacte", name: "contacteEmail", widget: "string" }
           - { label: "Instagram", name: "contacteInstagram", widget: "string" }
+      - name: "uneix_te"
+        label: "Uneix-te"
+        file: "src/content/pagines/uneix-te.md"
+        fields:
+          - { label: "Títol", name: "titol", widget: "string" }
+          - { label: "Text de la crida", name: "body", widget: "markdown", hint: "Els horaris d'assaig i el contacte es mostren automàticament des de la pàgina 'La colla'." }
+          - { label: "Fotografia", name: "imatge", widget: "image", required: false }
+      - name: "merchandising"
+        label: "Merchandising"
+        file: "src/content/pagines/merchandising.md"
+        fields:
+          - { label: "Titular", name: "titol", widget: "string" }
+          - { label: "Text", name: "body", widget: "markdown" }
+          - { label: "Fotografia", name: "imatge", widget: "image", required: false }
+      - name: "col_laboradors"
+        label: "Col·laboradors (text de contacte)"
+        file: "src/content/pagines/col-laboradors.md"
+        fields:
+          - { label: "Titular", name: "titol", widget: "string" }
+          - { label: "Text", name: "body", widget: "markdown" }
+          - { label: "Fotografia", name: "imatge", widget: "image", required: false }
+      - name: "mallarengues"
+        label: "Mallarengues"
+        file: "src/content/pagines/mallarengues.md"
+        fields:
+          - { label: "Títol", name: "titol", widget: "string" }
+          - { label: "Text", name: "body", widget: "markdown" }
+          - { label: "Fotografia", name: "imatge", widget: "image", required: false }
+          - { label: "Email de contacte", name: "contacteEmail", widget: "string", required: false }
 
-  - name: "persones"
-    label: "Equip"
-    folder: "src/content/persones"
+  - name: "junta_directiva"
+    label: "Junta Directiva"
+    folder: "src/content/junta-directiva"
     create: true
-    identifier_field: "nom"
-    slug: "{{fields.nom}}"
+    identifier_field: "numeroTemporada"
+    slug: "temporada-{{fields.numeroTemporada}}"
     fields:
-      - { label: "Nom", name: "nom", widget: "string" }
-      - { label: "Càrrec", name: "carrec", widget: "string", hint: "Ex: Presidenta, Cap de colla, Graller..." }
-      - label: "Categoria"
-        name: "categoria"
-        widget: "select"
-        options: ["Junta", "Cap de colla", "Musics"]
-      - { label: "Foto", name: "foto", widget: "image", required: false }
-      - { label: "Ordre", name: "ordre", widget: "number", required: false, value_type: "int", hint: "Per ordenar dins la categoria (menor primer)" }
+      - { label: "Número de temporada", name: "numeroTemporada", widget: "number", value_type: "int", hint: "Ex: 29 (es mostra com a XXIXè)" }
+      - label: "Membres"
+        name: "membres"
+        widget: "list"
+        required: false
+        summary: "{{fields.carrec}} · {{fields.nom}} {{fields.cognom}}"
+        fields:
+          - { label: "Càrrec", name: "carrec", widget: "string", hint: "Ex: Presidenta, Secretari, Tresorer..." }
+          - { label: "Nom", name: "nom", widget: "string" }
+          - { label: "Cognom", name: "cognom", widget: "string" }
+          - { label: "Malnom", name: "malnom", widget: "string", required: false }
+          - { label: "Foto", name: "foto", widget: "image", required: false }
+
+  - name: "junta_tecnica"
+    label: "Junta Tècnica"
+    folder: "src/content/junta-tecnica"
+    create: true
+    identifier_field: "numeroTemporada"
+    slug: "temporada-{{fields.numeroTemporada}}"
+    fields:
+      - { label: "Número de temporada", name: "numeroTemporada", widget: "number", value_type: "int", hint: "Ex: 29 (es mostra com a XXIXè)" }
+      - label: "Membres"
+        name: "membres"
+        widget: "list"
+        required: false
+        summary: "{{fields.carrec}} · {{fields.nom}} {{fields.cognom}}"
+        fields:
+          - { label: "Càrrec", name: "carrec", widget: "string", hint: "Ex: Cap de colla, Sotscap, Graller, Timbaler..." }
+          - { label: "Nom", name: "nom", widget: "string" }
+          - { label: "Cognom", name: "cognom", widget: "string" }
+          - { label: "Malnom", name: "malnom", widget: "string", required: false }
+          - { label: "Foto", name: "foto", widget: "image", required: false }
 
   - name: "patrocinadors"
     label: "Patrocinadors"
@@ -183,3 +244,5 @@ collections:
             widget: "string"
             required: false
             hint: "URL del calendari de Google Calendar en mode 'Insereix' (Configuració > Integra el calendari)"
+          - { label: "Email de contacte comercial/patrocinis", name: "contacteComercialEmail", widget: "string", required: false }
+          - { label: "Nom del responsable de patrocinis", name: "contacteComercialNom", widget: "string", required: false, hint: "Ex: Responsable de patrocinis" }

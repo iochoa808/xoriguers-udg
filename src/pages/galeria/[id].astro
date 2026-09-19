@@ -40,7 +40,7 @@ function formatDate(d: Date) {
   .wrap { max-width: 1000px; margin: 0 auto; padding: 40px 28px 60px; }
   .back { display: block; margin-bottom: 14px; color: var(--ink-soft); text-decoration: none; }
   h1 { margin: 8px 0 24px; font-size: clamp(1.8rem, 4vw, 2.6rem); }
-  .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
   .photo { aspect-ratio: 4/3; border-radius: 6px; object-fit: cover; width: 100%; display: block; }
   .placeholder { background: repeating-linear-gradient(135deg, var(--bg-deep) 0, var(--bg-deep) 14px, var(--line) 14px, var(--line) 28px); }
   .empty { color: var(--ink-soft); }

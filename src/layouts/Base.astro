@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { getEntry } from 'astro:content';
+import { isRealUrl } from '../lib/config';
 
 interface Props {
   title: string;
@@ -10,7 +11,6 @@ const { title } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const config = await getEntry('configuracio', 'general');
 const socials = config?.data;
-const isRealUrl = (u?: string) => !!u && !u.startsWith('[');
 ---
 <!doctype html>
 <html lang="ca">
@@ -34,10 +34,27 @@ const isRealUrl = (u?: string) => !!u && !u.startsWith('[');
       <span class="site-brand-tag">UdG</span>
     </a>
     <nav class="site-links">
+      <a href={`${base}uneix-te`}>Uneix-te</a>
+      <details class="nav-group">
+        <summary>La colla</summary>
+        <div class="nav-dropdown-panel">
+          <a href={`${base}la-colla`}>Qui som</a>
+          <a href={`${base}junta-tecnica`}>Junta Tècnica</a>
+          <a href={`${base}junta-directiva`}>Junta Directiva</a>
+          <a href={`${base}mallarengues`}>Mallarengues</a>
+          <a href={`${base}noticies`}>Notícies</a>
+        </div>
+      </details>
+      <details class="nav-group">
+        <summary>Castells</summary>
+        <div class="nav-dropdown-panel">
+          <a href={`${base}castells`}>Estadístiques</a>
+          <a href={`${base}galeria`}>Galeria</a>
+        </div>
+      </details>
       <a href={`${base}agenda`}>Agenda</a>
-      <a href={`${base}la-colla`}>La colla</a>
-      <a href={`${base}castells`}>Castells</a>
-      <a href={`${base}galeria`}>Galeria</a>
+      <a href={`${base}col-laboradors`}>Col·laboradors</a>
+      <a href={`${base}merchandising`}>Merchandising</a>
     </nav>
   </header>
 
@@ -48,11 +65,7 @@ const isRealUrl = (u?: string) => !!u && !u.startsWith('[');
   <footer class="site-footer">
     <div class="footer-brand display">Xoriguers UdG</div>
     <nav class="footer-links mono">
-      <a href={`${base}equip`}>Equip</a>
-      <a href={`${base}patrocinadors`}>Patrocinadors</a>
       <a href={`${base}documents`}>Documents</a>
-      <a href={`${base}calendari`}>Calendari</a>
-      {isRealUrl(socials?.merchandiseUrl) && <a href={socials!.merchandiseUrl} target="_blank" rel="noreferrer">Botiga</a>}
       {isRealUrl(socials?.youtubeUrl) && <a href={socials!.youtubeUrl} target="_blank" rel="noreferrer">YouTube</a>}
       {isRealUrl(socials?.instagramUrl) && <a href={socials!.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>}
     </nav>
@@ -90,8 +103,8 @@ const isRealUrl = (u?: string) => !!u && !u.startsWith('[');
       border-radius: 4px;
       padding: 3px 7px;
     }
-    .site-links { display: flex; gap: 30px; flex-wrap: wrap; }
-    .site-links a {
+    .site-links { display: flex; align-items: flex-start; gap: 30px; flex-wrap: wrap; }
+    .site-links > a {
       position: relative;
       padding-bottom: 3px;
       font-size: 0.8125rem;
@@ -106,7 +119,59 @@ const isRealUrl = (u?: string) => !!u && !u.startsWith('[');
       background-size: 0% 2px;
       transition: background-size 0.15s ease;
     }
-    .site-links a:hover { color: var(--blue-deep); background-size: 100% 2px; }
+    .site-links > a:hover { color: var(--blue-deep); background-size: 100% 2px; }
+
+    .nav-group { position: relative; }
+    .nav-group summary {
+      list-style: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding-bottom: 3px;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+    .nav-group summary::-webkit-details-marker { display: none; }
+    .nav-group summary::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-right: 2px solid currentColor;
+      border-bottom: 2px solid currentColor;
+      transform: rotate(45deg) translateY(-2px);
+      transition: transform 0.15s ease;
+    }
+    .nav-group[open] summary::after { transform: rotate(-135deg) translateY(2px); }
+    .nav-group summary:hover { color: var(--blue-deep); }
+    .nav-dropdown-panel {
+      position: absolute;
+      top: calc(100% + 14px);
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      min-width: 170px;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-top: 3px solid var(--blue);
+      border-radius: 6px;
+      box-shadow: 0 12px 24px rgba(22, 35, 44, 0.12);
+      padding: 8px;
+      z-index: 20;
+    }
+    .nav-dropdown-panel a {
+      padding: 9px 10px;
+      border-radius: 4px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--ink);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .nav-dropdown-panel a:hover { background: var(--bg-deep); color: var(--blue-deep); }
     .site-footer {
       background: var(--ink);
       color: var(--bg-deep);

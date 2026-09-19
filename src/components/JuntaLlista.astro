@@ -1,0 +1,71 @@
+---
+import { toRomanOrdinal } from '../lib/roman-ordinal';
+import { mediaUrl } from '../lib/media';
+
+interface Membre {
+  carrec: string;
+  nom: string;
+  cognom: string;
+  malnom?: string;
+  foto?: string;
+}
+interface Temporada {
+  numeroTemporada: number;
+  membres: Membre[];
+}
+interface Props {
+  temporades: Temporada[];
+}
+
+const { temporades } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+<div class="junta-llista">
+  {temporades.map((t, i) => (
+    <details class="temporada" open={i === 0}>
+      <summary>
+        <span class="numero display">{toRomanOrdinal(t.numeroTemporada)}</span>
+      </summary>
+      <div class="membres">
+        {t.membres.map((m) => {
+          const foto = mediaUrl(base, m.foto);
+          return (
+            <div class="persona">
+              {foto ? <img class="foto" src={foto} alt="" /> : <div class="foto placeholder"></div>}
+              <div class="nom">{m.nom} {m.cognom}</div>
+              {m.malnom && <div class="malnom">{m.malnom}</div>}
+              <div class="carrec mono">{m.carrec}</div>
+            </div>
+          );
+        })}
+        {t.membres.length === 0 && <p class="empty">Encara no hi ha càrrecs assignats aquesta temporada.</p>}
+      </div>
+    </details>
+  ))}
+  {temporades.length === 0 && <p class="empty">Encara no hi ha temporades publicades.</p>}
+</div>
+
+<style>
+  .junta-llista { display: flex; flex-direction: column; gap: 14px; }
+  .temporada {
+    background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--blue);
+    border-radius: 8px; overflow: hidden;
+  }
+  .temporada summary {
+    list-style: none; cursor: pointer;
+    padding: 18px 22px;
+  }
+  .temporada summary::-webkit-details-marker { display: none; }
+  .numero { font-size: 1.6rem; color: var(--blue-deep); }
+  .membres {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 200px)); gap: 24px;
+    padding: 4px 22px 28px;
+  }
+  .persona { text-align: center; }
+  .foto { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin: 0 auto 10px; display: block; }
+  .foto.placeholder { background: var(--bg-deep); border: 1px solid var(--line); margin: 0 auto 10px; }
+  .nom { font-weight: 600; font-size: 0.9375rem; }
+  .malnom { color: var(--blue-deep); font-weight: 800; text-transform: uppercase; font-size: 0.8125rem; letter-spacing: 0.02em; margin-top: 2px; }
+  .carrec { font-size: 0.75rem; color: var(--ink-soft); margin-top: 4px; }
+  .empty { color: var(--ink-soft); font-size: 0.9375rem; padding: 0 22px 22px; }
+</style>

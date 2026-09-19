@@ -54,22 +54,36 @@ const pagines = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/pagines' }),
   schema: z.object({
     titol: z.string(),
-    assajosHorari: z.string(),
-    assajosLloc: z.string(),
-    contacteEmail: z.string(),
-    contacteInstagram: z.string(),
+    imatge: z.string().optional(),
+    ctaText: z.string().optional(),
+    assajosHorari: z.string().optional(),
+    assajosLloc: z.string().optional(),
+    contacteEmail: z.string().optional(),
+    contacteInstagram: z.string().optional(),
   }),
 });
 
-const persones = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/persones' }),
-  schema: z.object({
-    nom: z.string(),
-    carrec: z.string(),
-    categoria: z.enum(['Junta', 'Cap de colla', 'Musics']),
-    foto: z.string().optional(),
-    ordre: z.preprocess(emptyToUndefined, z.number().default(0)),
-  }),
+const membreJunta = z.object({
+  carrec: z.string(),
+  nom: z.string(),
+  cognom: z.string(),
+  malnom: z.string().optional(),
+  foto: z.string().optional(),
+});
+
+const juntaTemporadaSchema = z.object({
+  numeroTemporada: z.preprocess(emptyToUndefined, z.number()),
+  membres: z.array(membreJunta).default([]),
+});
+
+const juntaDirectiva = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/junta-directiva' }),
+  schema: juntaTemporadaSchema,
+});
+
+const juntaTecnica = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/junta-tecnica' }),
+  schema: juntaTemporadaSchema,
 });
 
 const patrocinadors = defineCollection({
@@ -99,6 +113,8 @@ const configuracio = defineCollection({
     youtubeUrl: z.string().optional(),
     merchandiseUrl: z.string().optional(),
     googleCalendarEmbedUrl: z.string().optional(),
+    contacteComercialEmail: z.string().optional(),
+    contacteComercialNom: z.string().optional(),
   }),
 });
 
@@ -107,7 +123,8 @@ export const collections = {
   noticies,
   galeria,
   pagines,
-  persones,
+  juntaDirectiva,
+  juntaTecnica,
   patrocinadors,
   documents,
   configuracio,

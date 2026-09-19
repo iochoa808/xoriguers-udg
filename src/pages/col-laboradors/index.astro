@@ -1,0 +1,76 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, getEntry, render } from 'astro:content';
+import { mediaUrl } from '../../lib/media';
+import { isRealUrl } from '../../lib/config';
+
+const patrocinadors = (await getCollection('patrocinadors')).sort((a, b) => a.data.ordre - b.data.ordre);
+const base = import.meta.env.BASE_URL;
+
+const config = await getEntry('configuracio', 'general');
+const comercialEmail = isRealUrl(config?.data.contacteComercialEmail) ? config!.data.contacteComercialEmail : undefined;
+const comercialNom = config?.data.contacteComercialNom;
+
+const contactePagina = await getEntry('pagines', 'col-laboradors');
+const { Content: ContacteContent } = await render(contactePagina!);
+const contacteImatge = mediaUrl(base, contactePagina?.data.imatge);
+---
+<Base title="Col·laboradors">
+  <div class="wrap">
+    <div class="eyebrow">La colla</div>
+    <h1 class="display">Col·laboradors</h1>
+    <p class="lead">Entitats i empreses que fan possible la temporada dels Xoriguers.</p>
+    <div class="grid">
+      {patrocinadors.map((p) => {
+        const logo = mediaUrl(base, p.data.logo);
+        const hasUrl = isRealUrl(p.data.url);
+        const Tag = hasUrl ? 'a' : 'div';
+        return (
+          <Tag class="card" href={hasUrl ? p.data.url : undefined} target={hasUrl ? '_blank' : undefined} rel={hasUrl ? 'noreferrer' : undefined}>
+            {logo ? <img class="logo" src={logo} alt={p.data.nom} /> : <div class="logo placeholder mono">{p.data.nom}</div>}
+          </Tag>
+        );
+      })}
+      {patrocinadors.length === 0 && <p class="empty">Encara no hi ha col·laboradors llistats.</p>}
+    </div>
+
+    {comercialEmail && (
+      <div class="contacte-comercial">
+        <div class="eyebrow" style="color: var(--yellow)">Col·laboracions i patrocinis</div>
+        <h2 class="display">{contactePagina!.data.titol}</h2>
+        <div class="contacte-text">
+          <ContacteContent />
+        </div>
+        {contacteImatge && <img class="contacte-imatge" src={contacteImatge} alt="" />}
+        <a class="btn btn-accent" href={`mailto:${comercialEmail}`}>
+          {comercialNom ? `Contacta amb ${comercialNom}` : 'Escriu-nos'}
+        </a>
+        <div class="email mono">{comercialEmail}</div>
+      </div>
+    )}
+  </div>
+</Base>
+
+<style>
+  .wrap { max-width: 900px; margin: 0 auto; padding: 40px 28px 60px; }
+  h1 { margin: 10px 0 10px; font-size: clamp(1.8rem, 4vw, 2.6rem); }
+  .lead { color: var(--ink-soft); margin-bottom: 28px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 18px; }
+  .card {
+    display: flex; align-items: center; justify-content: center;
+    background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 24px;
+    text-decoration: none; min-height: 100px;
+  }
+  .logo { max-width: 100%; max-height: 60px; object-fit: contain; }
+  .logo.placeholder { color: var(--ink-soft); font-size: 0.8125rem; text-align: center; }
+  .empty { color: var(--ink-soft); }
+  .contacte-comercial {
+    background: var(--ink); color: var(--bg); border-radius: 10px;
+    padding: 44px 36px; margin-top: 40px;
+  }
+  .contacte-comercial h2 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1; margin: 10px 0 18px; }
+  .contacte-text { color: var(--bg-deep); max-width: 56ch; line-height: 1.55; }
+  .contacte-text :global(p) { margin: 0 0 22px; }
+  .contacte-imatge { width: 100%; max-width: 420px; border-radius: 8px; display: block; margin-bottom: 22px; }
+  .contacte-comercial .email { color: rgba(234, 246, 252, 0.6); font-size: 0.8125rem; margin-top: 14px; }
+</style>
