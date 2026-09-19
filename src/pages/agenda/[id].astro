@@ -23,7 +23,7 @@ const pillLabel = { descarregat: 'Descarregat', carregat: 'Carregat', intent: 'I
 
 const base = import.meta.env.BASE_URL;
 ---
-<Base title={entry.data.nom}>
+<Base title={entry.data.nom} showHeader={false}>
   <div class="wrap">
     <a class="back mono" href={`${base}agenda`}>← Agenda</a>
     <div class="eyebrow-row">

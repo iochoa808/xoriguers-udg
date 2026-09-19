@@ -146,6 +146,11 @@ collections:
           - { label: "Titular", name: "titol", widget: "string" }
           - { label: "Text", name: "body", widget: "markdown" }
           - { label: "Fotografia", name: "imatge", widget: "image", required: false }
+      - name: "col_laboradors_intro"
+        label: "Col·laboradors (introducció)"
+        file: "src/content/pagines/col-laboradors-intro.md"
+        fields:
+          - { label: "Text introductori", name: "body", widget: "markdown", required: false, hint: "Text curt que es mostra a sota del títol, abans de la llista." }
       - name: "col_laboradors"
         label: "Col·laboradors (text de contacte)"
         file: "src/content/pagines/col-laboradors.md"
@@ -161,6 +166,48 @@ collections:
           - { label: "Text", name: "body", widget: "markdown" }
           - { label: "Fotografia", name: "imatge", widget: "image", required: false }
           - { label: "Email de contacte", name: "contacteEmail", widget: "string", required: false }
+      - name: "agenda"
+        label: "Capçalera: Agenda"
+        file: "src/content/pagines/agenda.md"
+        fields:
+          - { label: "Fotografia de capçalera", name: "imatge", widget: "image", required: false, hint: "Si no se'n puja cap, es fa servir la de Configuració general." }
+          - { label: "Text introductori", name: "body", widget: "markdown", required: false, hint: "Text curt que es mostra a sota del títol. Es pot deixar buit." }
+      - name: "noticies"
+        label: "Capçalera: Notícies"
+        file: "src/content/pagines/noticies.md"
+        fields:
+          - { label: "Fotografia de capçalera", name: "imatge", widget: "image", required: false, hint: "Si no se'n puja cap, es fa servir la de Configuració general." }
+          - { label: "Text introductori", name: "body", widget: "markdown", required: false, hint: "Text curt que es mostra a sota del títol. Es pot deixar buit." }
+      - name: "galeria"
+        label: "Capçalera: Galeria"
+        file: "src/content/pagines/galeria.md"
+        fields:
+          - { label: "Fotografia de capçalera", name: "imatge", widget: "image", required: false, hint: "Si no se'n puja cap, es fa servir la de Configuració general." }
+          - { label: "Text introductori", name: "body", widget: "markdown", required: false, hint: "Text curt que es mostra a sota del títol. Es pot deixar buit." }
+      - name: "castells"
+        label: "Capçalera: Castells"
+        file: "src/content/pagines/castells.md"
+        fields:
+          - { label: "Fotografia de capçalera", name: "imatge", widget: "image", required: false, hint: "Si no se'n puja cap, es fa servir la de Configuració general." }
+          - { label: "Text introductori", name: "body", widget: "markdown", required: false, hint: "Text curt que es mostra a sota del títol. Es pot deixar buit." }
+      - name: "documents"
+        label: "Capçalera: Documents"
+        file: "src/content/pagines/documents.md"
+        fields:
+          - { label: "Fotografia de capçalera", name: "imatge", widget: "image", required: false, hint: "Si no se'n puja cap, es fa servir la de Configuració general." }
+          - { label: "Text introductori", name: "body", widget: "markdown", required: false }
+      - name: "junta_directiva_capcalera"
+        label: "Capçalera: Junta Directiva"
+        file: "src/content/pagines/junta-directiva.md"
+        fields:
+          - { label: "Fotografia de capçalera", name: "imatge", widget: "image", required: false, hint: "Si no se'n puja cap, es fa servir la de Configuració general." }
+          - { label: "Text introductori", name: "body", widget: "markdown", required: false }
+      - name: "junta_tecnica_capcalera"
+        label: "Capçalera: Junta Tècnica"
+        file: "src/content/pagines/junta-tecnica.md"
+        fields:
+          - { label: "Fotografia de capçalera", name: "imatge", widget: "image", required: false, hint: "Si no se'n puja cap, es fa servir la de Configuració general." }
+          - { label: "Text introductori", name: "body", widget: "markdown", required: false }
 
   - name: "junta_directiva"
     label: "Junta Directiva"
@@ -202,6 +249,39 @@ collections:
           - { label: "Malnom", name: "malnom", widget: "string", required: false }
           - { label: "Foto", name: "foto", widget: "image", required: false }
 
+  - name: "productes"
+    label: "Merchandising"
+    folder: "src/content/productes"
+    create: true
+    identifier_field: "nom"
+    slug: "{{fields.nom}}"
+    fields:
+      - { label: "Nom", name: "nom", widget: "string" }
+      - { label: "Preu (€)", name: "preu", widget: "number" }
+      - label: "Categoria"
+        name: "categoria"
+        widget: "select"
+        options: ["Roba", "Dessuadora", "Complements"]
+      - label: "Estat"
+        name: "estat"
+        widget: "select"
+        options: ["Disponible", "Fora de termini"]
+        default: "Disponible"
+      - label: "Fotos"
+        name: "fotos"
+        widget: "list"
+        required: false
+        field: { label: "Foto", name: "foto", widget: "image" }
+      - label: "Talles i estoc"
+        name: "talles"
+        widget: "list"
+        required: false
+        summary: "{{fields.talla}} · {{fields.estoc}}"
+        fields:
+          - { label: "Talla", name: "talla", widget: "string", hint: "Ex: S, M, L, XL, XXL, o Única" }
+          - { label: "Estoc", name: "estoc", widget: "number", required: false, value_type: "int" }
+      - { label: "Ordre", name: "ordre", widget: "number", required: false, value_type: "int" }
+
   - name: "patrocinadors"
     label: "Patrocinadors"
     folder: "src/content/patrocinadors"
@@ -238,7 +318,7 @@ collections:
         fields:
           - { label: "URL Instagram", name: "instagramUrl", widget: "string", required: false }
           - { label: "URL YouTube", name: "youtubeUrl", widget: "string", required: false }
-          - { label: "URL botiga (merchandising)", name: "merchandiseUrl", widget: "string", required: false }
+          - { label: "Email per a reserves de merchandising", name: "merchandiseEmail", widget: "string", required: false, hint: "Rep les reserves que es facin des de la fitxa de cada producte" }
           - label: "URL d'inserció de Google Calendar"
             name: "googleCalendarEmbedUrl"
             widget: "string"
@@ -246,3 +326,4 @@ collections:
             hint: "URL del calendari de Google Calendar en mode 'Insereix' (Configuració > Integra el calendari)"
           - { label: "Email de contacte comercial/patrocinis", name: "contacteComercialEmail", widget: "string", required: false }
           - { label: "Nom del responsable de patrocinis", name: "contacteComercialNom", widget: "string", required: false, hint: "Ex: Responsable de patrocinis" }
+          - { label: "Fotografia de capçalera", name: "capceleraImatge", widget: "image", required: false, hint: "Imatge de fons que es mostra a la capçalera de totes les pàgines (llevat de l'inici)" }

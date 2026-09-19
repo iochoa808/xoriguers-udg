@@ -1,10 +1,13 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import { mediaUrl } from '../../lib/media';
 
 const documents = await getCollection('documents');
 const base = import.meta.env.BASE_URL;
+const capcalera = await getEntry('pagines', 'documents');
+const heroImage = mediaUrl(base, capcalera?.data.imatge);
+const { Content: IntroContent } = await render(capcalera!);
 
 const categories = ['Estatuts', 'Reglament', 'Protocol', 'Altres'] as const;
 const grups = categories.map((cat) => ({
@@ -12,11 +15,13 @@ const grups = categories.map((cat) => ({
   documents: documents.filter((d) => d.data.categoria === cat),
 }));
 ---
-<Base title="Documents">
+<Base title="Documents" heroImage={heroImage}>
   <div class="wrap">
-    <div class="eyebrow">La colla</div>
-    <h1 class="display">Documents</h1>
-    <p class="lead">Estatuts, reglament intern i protocols de la colla.</p>
+    {capcalera?.body?.trim() && (
+      <div class="lead">
+        <IntroContent />
+      </div>
+    )}
 
     {grups.map((grup) => grup.documents.length > 0 && (
       <section class="grup">
@@ -37,8 +42,8 @@ const grups = categories.map((cat) => ({
 
 <style>
   .wrap { max-width: 700px; margin: 0 auto; padding: 40px 28px 60px; }
-  h1 { margin: 10px 0 10px; font-size: clamp(1.8rem, 4vw, 2.6rem); }
   .lead { color: var(--ink-soft); margin-bottom: 28px; }
+  .lead :global(p) { margin: 0; }
   .grup { margin-bottom: 28px; }
   .list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
   .doc {

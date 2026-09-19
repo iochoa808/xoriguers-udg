@@ -2,15 +2,19 @@
 import '../styles/global.css';
 import { getEntry } from 'astro:content';
 import { isRealUrl } from '../lib/config';
+import { mediaUrl } from '../lib/media';
 
 interface Props {
   title: string;
+  showHeader?: boolean;
+  heroImage?: string;
 }
 
-const { title } = Astro.props;
+const { title, showHeader = true, heroImage } = Astro.props;
 const base = import.meta.env.BASE_URL;
 const config = await getEntry('configuracio', 'general');
 const socials = config?.data;
+const bannerImage = heroImage ?? mediaUrl(base, config?.data.capceleraImatge);
 ---
 <!doctype html>
 <html lang="ca">
@@ -57,6 +61,14 @@ const socials = config?.data;
       <a href={`${base}merchandising`}>Merchandising</a>
     </nav>
   </header>
+
+  {showHeader && (
+    <header class="page-hero">
+      {bannerImage && <img class="page-hero-img" src={bannerImage} alt="" />}
+      <div class="page-hero-scrim"></div>
+      <h1 class="page-hero-title display">{title}</h1>
+    </header>
+  )}
 
   <main>
     <slot />
@@ -172,6 +184,37 @@ const socials = config?.data;
       white-space: nowrap;
     }
     .nav-dropdown-panel a:hover { background: var(--bg-deep); color: var(--blue-deep); }
+
+    .page-hero {
+      position: relative;
+      height: 240px;
+      overflow: hidden;
+      display: flex;
+      align-items: flex-end;
+      background: var(--blue-deep);
+    }
+    .page-hero-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .page-hero-scrim {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(22, 35, 44, 0) 40%, rgba(22, 35, 44, 0.75) 100%);
+    }
+    .page-hero-title {
+      position: relative;
+      z-index: 1;
+      color: #fff;
+      padding: 24px 28px;
+      font-size: clamp(1.8rem, 4.5vw, 2.8rem);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    }
+
     .site-footer {
       background: var(--ink);
       color: var(--bg-deep);

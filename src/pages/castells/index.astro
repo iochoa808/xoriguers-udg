@@ -1,11 +1,14 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import { mediaUrl } from '../../lib/media';
 import { floors } from '../../lib/castell-notation';
 import { formatDate } from '../../lib/format';
 
 const base = import.meta.env.BASE_URL;
+const capcalera = await getEntry('pagines', 'castells');
+const heroImage = mediaUrl(base, capcalera?.data.imatge);
+const { Content: IntroContent } = await render(capcalera!);
 
 const agenda = await getCollection('agenda', ({ data }) => data.estat === 'publicat');
 
@@ -49,11 +52,13 @@ const millorDiada = [...perActuacio.values()].sort((a, b) => b.n - a.n)[0];
 
 const ambFoto = castells.filter((c) => mediaUrl(base, c.foto));
 ---
-<Base title="Castells">
+<Base title="Estadístiques" heroImage={heroImage}>
   <div class="wrap">
-    <div class="eyebrow">Castells</div>
-    <h1 class="display">Estadístiques</h1>
-
+    {capcalera?.body?.trim() && (
+      <div class="lead">
+        <IntroContent />
+      </div>
+    )}
     <div class="stat-grid">
       <div class="stat-card">
         <div class="label mono">Castell més alt</div>
@@ -125,7 +130,8 @@ const ambFoto = castells.filter((c) => mediaUrl(base, c.foto));
 
 <style>
   .wrap { max-width: 960px; margin: 0 auto; padding: 40px 28px 60px; }
-  h1 { margin: 10px 0 28px; font-size: clamp(2rem, 4.5vw, 3rem); }
+  .lead { color: var(--ink-soft); margin-bottom: 28px; }
+  .lead :global(p) { margin: 0; }
   .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 40px; }
   .stat-card { background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--blue); border-radius: 8px; padding: 22px; }
   .label { font-size: 0.6875rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; }

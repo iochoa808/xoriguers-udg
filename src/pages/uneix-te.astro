@@ -14,16 +14,8 @@ const instagramUrl = isRealUrl(info?.data.contacteInstagram)
   ? `https://instagram.com/${info!.data.contacteInstagram!.replace(/^@/, '')}`
   : undefined;
 ---
-<Base title="Uneix-te">
-  <div class="hero">
-    <div class="hero-panel">
-      <span class="badge">Uneix-te</span>
-      <h1 class="display">{pagina!.data.titol}</h1>
-    </div>
-  </div>
-
+<Base title={pagina!.data.titol ?? 'Uneix-te'} heroImage={imatge}>
   <div class="wrap">
-    {imatge && <img class="foto" src={imatge} alt="" />}
     <div class="lead">
       <Content />
     </div>
@@ -62,19 +54,7 @@ const instagramUrl = isRealUrl(info?.data.contacteInstagram)
 </Base>
 
 <style>
-  .hero { margin: 0 0 4px; }
-  .hero-panel {
-    background: var(--blue-deep);
-    color: var(--bg);
-    padding: 48px 40px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
-  }
-  .hero-panel h1 { font-size: clamp(2rem, 4vw, 3rem); line-height: 1.02; }
   .wrap { max-width: 720px; margin: 0 auto; padding: 40px 28px 60px; }
-  .foto { width: 100%; max-height: 360px; object-fit: cover; border-radius: 8px; margin-bottom: 24px; }
   .lead { font-size: 1.0625rem; line-height: 1.65; color: var(--ink-soft); max-width: 62ch; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 28px 0; }
   .card { background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--blue); border-radius: 8px; padding: 18px 20px; }

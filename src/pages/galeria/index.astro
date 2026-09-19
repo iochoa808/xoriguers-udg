@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import { mediaUrl } from '../../lib/media';
 
 const albums = await getCollection('galeria', ({ data }) => data.estat === 'publicat');
@@ -11,11 +11,17 @@ function formatDate(d: Date) {
 }
 
 const base = import.meta.env.BASE_URL;
+const capcalera = await getEntry('pagines', 'galeria');
+const heroImage = mediaUrl(base, capcalera?.data.imatge);
+const { Content: IntroContent } = await render(capcalera!);
 ---
-<Base title="Galeria">
+<Base title="Àlbums" heroImage={heroImage}>
   <div class="wrap">
-    <div class="eyebrow">Galeria</div>
-    <h1 class="display">Àlbums</h1>
+    {capcalera?.body?.trim() && (
+      <div class="lead">
+        <IntroContent />
+      </div>
+    )}
     <div class="grid">
       {sorted.map((album, i) => {
         const cover = mediaUrl(base, album.data.portada);
@@ -34,7 +40,8 @@ const base = import.meta.env.BASE_URL;
 
 <style>
   .wrap { max-width: 1000px; margin: 0 auto; padding: 40px 28px 60px; }
-  h1 { margin: 10px 0 28px; font-size: clamp(1.8rem, 4vw, 2.6rem); }
+  .lead { color: var(--ink-soft); margin-bottom: 28px; }
+  .lead :global(p) { margin: 0; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 22px; }
   .album { text-decoration: none; color: var(--ink); }
   .cover { aspect-ratio: 4/3; border-radius: 8px; margin-bottom: 10px; width: 100%; object-fit: cover; display: block; }

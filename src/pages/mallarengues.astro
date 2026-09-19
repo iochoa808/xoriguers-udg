@@ -12,11 +12,8 @@ const email = isRealUrl(pagina?.data.contacteEmail) ? pagina!.data.contacteEmail
 
 const protocols = (await getCollection('documents', ({ data }) => data.categoria === 'Protocol'));
 ---
-<Base title="Mallarengues">
+<Base title={pagina!.data.titol ?? 'Mallarengues'} heroImage={imatge}>
   <div class="wrap">
-    <div class="eyebrow">La colla</div>
-    <h1 class="display">{pagina!.data.titol}</h1>
-    {imatge && <img class="foto" src={imatge} alt="" />}
     <div class="lead">
       <Content />
     </div>
@@ -40,8 +37,6 @@ const protocols = (await getCollection('documents', ({ data }) => data.categoria
 
 <style>
   .wrap { max-width: 720px; margin: 0 auto; padding: 40px 28px 60px; }
-  h1 { margin: 10px 0 22px; font-size: clamp(1.8rem, 4vw, 2.6rem); }
-  .foto { width: 100%; max-height: 360px; object-fit: cover; border-radius: 8px; margin-bottom: 24px; }
   .lead { font-size: 1.0625rem; line-height: 1.65; color: var(--ink-soft); max-width: 60ch; }
   .lead :global(p) { margin: 0 0 16px; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 28px 0; }

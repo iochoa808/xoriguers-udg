@@ -53,7 +53,7 @@ const galeria = defineCollection({
 const pagines = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/pagines' }),
   schema: z.object({
-    titol: z.string(),
+    titol: z.string().optional(),
     imatge: z.string().optional(),
     ctaText: z.string().optional(),
     assajosHorari: z.string().optional(),
@@ -86,6 +86,24 @@ const juntaTecnica = defineCollection({
   schema: juntaTemporadaSchema,
 });
 
+const tallaEstoc = z.object({
+  talla: z.string(),
+  estoc: z.preprocess(emptyToUndefined, z.number().default(0)),
+});
+
+const productes = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/productes' }),
+  schema: z.object({
+    nom: z.string(),
+    preu: z.preprocess(emptyToUndefined, z.number()),
+    categoria: z.enum(['Roba', 'Dessuadora', 'Complements']),
+    estat: z.enum(['Disponible', 'Fora de termini']).default('Disponible'),
+    fotos: z.array(z.string()).default([]),
+    talles: z.array(tallaEstoc).default([]),
+    ordre: z.preprocess(emptyToUndefined, z.number().default(0)),
+  }),
+});
+
 const patrocinadors = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/patrocinadors' }),
   schema: z.object({
@@ -111,10 +129,11 @@ const configuracio = defineCollection({
   schema: z.object({
     instagramUrl: z.string().optional(),
     youtubeUrl: z.string().optional(),
-    merchandiseUrl: z.string().optional(),
+    merchandiseEmail: z.string().optional(),
     googleCalendarEmbedUrl: z.string().optional(),
     contacteComercialEmail: z.string().optional(),
     contacteComercialNom: z.string().optional(),
+    capceleraImatge: z.string().optional(),
   }),
 });
 
@@ -125,6 +144,7 @@ export const collections = {
   pagines,
   juntaDirectiva,
   juntaTecnica,
+  productes,
   patrocinadors,
   documents,
   configuracio,

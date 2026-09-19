@@ -18,7 +18,7 @@ function formatDate(d: Date) {
   return new Intl.DateTimeFormat('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
 }
 ---
-<Base title={entry.data.nom}>
+<Base title={entry.data.nom} showHeader={false}>
   <div class="wrap">
     <a class="back mono" href={`${base}galeria`}>← Galeria</a>
     <div class="eyebrow">{formatDate(entry.data.data)}</div>

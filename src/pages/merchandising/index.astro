@@ -1,0 +1,101 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection, getEntry, render } from 'astro:content';
+import { mediaUrl } from '../../lib/media';
+
+const base = import.meta.env.BASE_URL;
+const pagina = await getEntry('pagines', 'merchandising');
+const { Content } = await render(pagina!);
+const imatge = mediaUrl(base, pagina?.data.imatge);
+
+const productes = (await getCollection('productes')).sort((a, b) => a.data.ordre - b.data.ordre);
+---
+<Base title={pagina!.data.titol ?? 'Merchandising'} heroImage={imatge}>
+  <div class="wrap">
+    <div class="lead">
+      <Content />
+    </div>
+    <div class="catalog">
+      <input type="radio" name="filtre" id="f-tots" class="tab-input" checked />
+      <input type="radio" name="filtre" id="f-roba" class="tab-input" />
+      <input type="radio" name="filtre" id="f-dessuadora" class="tab-input" />
+      <input type="radio" name="filtre" id="f-complements" class="tab-input" />
+
+      <div class="tabs">
+        <label for="f-tots">Tots</label>
+        <label for="f-roba">Roba</label>
+        <label for="f-dessuadora">Dessuadora</label>
+        <label for="f-complements">Complements</label>
+      </div>
+
+      <div class="grid">
+        {productes.map((p) => {
+          const foto = mediaUrl(base, p.data.fotos[0]);
+          const disponible = p.data.estat === 'Disponible';
+          return (
+            <a class="producte" data-cat={p.data.categoria} href={`${base}merchandising/${p.id}`}>
+              {foto ? <img class="foto" src={foto} alt="" /> : <div class="foto placeholder"></div>}
+              <div class="nom">{p.data.nom}</div>
+              {disponible ? (
+                <>
+                  <div class="preu">{p.data.preu}€</div>
+                  <span class="veure">Veure detalls</span>
+                </>
+              ) : (
+                <span class="fora">Fora de termini</span>
+              )}
+            </a>
+          );
+        })}
+        {productes.length === 0 && <p class="empty">Encara no hi ha cap producte publicat.</p>}
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 40px 28px 60px; }
+  .lead { font-size: 1.0625rem; line-height: 1.6; color: var(--ink-soft); max-width: 65ch; margin-bottom: 32px; }
+  .lead :global(p) { margin: 0; }
+
+  .tab-input { position: absolute; opacity: 0; pointer-events: none; }
+  .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+  .tabs label {
+    cursor: pointer; padding: 8px 16px; border-radius: 99px;
+    font-size: 0.8125rem; font-weight: 600; background: var(--bg-deep); color: var(--ink-soft);
+  }
+  #f-tots:checked ~ .tabs label[for="f-tots"],
+  #f-roba:checked ~ .tabs label[for="f-roba"],
+  #f-dessuadora:checked ~ .tabs label[for="f-dessuadora"],
+  #f-complements:checked ~ .tabs label[for="f-complements"] {
+    background: var(--ink); color: #fff;
+  }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
+  .producte {
+    display: block; text-decoration: none; color: var(--ink);
+    background: #fff; border: 1px solid var(--line); border-radius: 8px; overflow: hidden;
+  }
+  .producte:hover { border-color: var(--blue); }
+  #f-roba:checked ~ .grid .producte:not([data-cat="Roba"]),
+  #f-dessuadora:checked ~ .grid .producte:not([data-cat="Dessuadora"]),
+  #f-complements:checked ~ .grid .producte:not([data-cat="Complements"]) {
+    display: none;
+  }
+  .foto { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+  .foto.placeholder {
+    aspect-ratio: 1;
+    background: repeating-linear-gradient(135deg, var(--bg-deep) 0, var(--bg-deep) 14px, var(--line) 14px, var(--line) 28px);
+  }
+  .nom { font-weight: 600; font-size: 0.9375rem; padding: 14px 14px 0; }
+  .preu { font-weight: 700; padding: 6px 14px 0; }
+  .veure {
+    display: block; margin: 12px 14px 14px; text-align: center; padding: 9px;
+    background: var(--ink); color: #fff; border-radius: 5px; font-size: 0.8125rem; font-weight: 600;
+  }
+  .fora {
+    display: block; margin: 12px 14px 14px; text-align: center; padding: 9px;
+    background: var(--neutral-bg); color: var(--neutral-ink); border-radius: 5px; font-size: 0.8125rem; font-weight: 600;
+  }
+  .empty { color: var(--ink-soft); grid-column: 1 / -1; }
+</style>

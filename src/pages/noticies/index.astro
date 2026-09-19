@@ -1,6 +1,6 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import { mediaUrl } from '../../lib/media';
 
 const noticies = await getCollection('noticies', ({ data }) => data.estat === 'publicat');
@@ -11,11 +11,17 @@ function formatDate(d: Date) {
 }
 
 const base = import.meta.env.BASE_URL;
+const capcalera = await getEntry('pagines', 'noticies');
+const heroImage = mediaUrl(base, capcalera?.data.imatge);
+const { Content: IntroContent } = await render(capcalera!);
 ---
-<Base title="Notícies">
+<Base title="Últimes notícies" heroImage={heroImage}>
   <div class="wrap">
-    <div class="eyebrow">Notícies</div>
-    <h1 class="display">Últimes notícies</h1>
+    {capcalera?.body?.trim() && (
+      <div class="lead">
+        <IntroContent />
+      </div>
+    )}
     <div class="list">
       {sorted.map((n) => (
         <a class="row" href={`${base}noticies/${n.id}`}>
@@ -34,7 +40,8 @@ const base = import.meta.env.BASE_URL;
 
 <style>
   .wrap { max-width: 800px; margin: 0 auto; padding: 40px 28px 60px; }
-  h1 { margin: 10px 0 28px; font-size: clamp(1.8rem, 4vw, 2.6rem); }
+  .lead { color: var(--ink-soft); margin-bottom: 28px; }
+  .lead :global(p) { margin: 0; }
   .list { display: flex; flex-direction: column; gap: 14px; }
   .row {
     display: flex; gap: 20px; flex-wrap: wrap; align-items: center; text-decoration: none; color: var(--ink);
