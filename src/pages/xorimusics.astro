@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro';
+import { getEntry, render } from 'astro:content';
+import { mediaUrl } from '../lib/media';
+import { isRealUrl } from '../lib/config';
+import MapEmbed from '../components/MapEmbed.astro';
+
+const pagina = await getEntry('pagines', 'xorimusics');
+const { Content } = await render(pagina!);
+const uneixTe = await getEntry('pagines', 'uneix-te');
+const base = import.meta.env.BASE_URL;
+const imatge = mediaUrl(base, pagina?.data.imatge);
+const email = isRealUrl(pagina?.data.contacteEmail) ? pagina!.data.contacteEmail : undefined;
+---
+<Base title={pagina!.data.titol ?? 'Xorimúsics'} heroImage={imatge}>
+  <div class="wrap">
+    <div class="lead">
+      <Content />
+    </div>
+
+    <div class="grid">
+      {isRealUrl(uneixTe?.data.practicaMusicsHorari) && (
+        <div class="card">
+          <div class="eyebrow">Assaig</div>
+          <p>{uneixTe!.data.practicaMusicsHorari}</p>
+        </div>
+      )}
+      {email && (
+        <div class="card">
+          <div class="eyebrow">Contacte</div>
+          <p><a href={`mailto:${email}`}>{email}</a></p>
+        </div>
+      )}
+    </div>
+
+    {isRealUrl(uneixTe?.data.practicaUbicacio) && (
+      <div class="map-section">
+        <div class="eyebrow">On assagem</div>
+        <MapEmbed ubicacio={uneixTe!.data.practicaUbicacio!} label="Ubicació dels assajos" />
+      </div>
+    )}
+  </div>
+</Base>
+
+<style>
+  .wrap { max-width: 720px; margin: 0 auto; padding: 40px 28px 60px; }
+  .lead { font-size: 1.0625rem; line-height: 1.65; color: var(--ink-soft); max-width: 60ch; }
+  .lead :global(p) { margin: 0 0 16px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 28px 0; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 18px 20px; }
+  .card p { margin: 8px 0 0; font-size: 0.9375rem; }
+  .map-section { margin: 28px 0; }
+</style>

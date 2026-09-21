@@ -1,0 +1,26 @@
+---
+interface Props {
+  ubicacio: string;
+  label?: string;
+}
+
+const { ubicacio, label = 'Ubicació' } = Astro.props;
+const query = encodeURIComponent(ubicacio);
+---
+<div class="map-embed">
+  <iframe
+    class="map"
+    src={`https://www.google.com/maps?q=${query}&output=embed`}
+    title={label}
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+  ></iframe>
+  <a class="map-link" href={`https://www.google.com/maps?q=${query}`} target="_blank" rel="noreferrer">
+    Obre a Google Maps
+  </a>
+</div>
+
+<style>
+  .map { width: 100%; aspect-ratio: 16/9; border: 1px solid var(--line); border-radius: 8px; display: block; }
+  .map-link { display: inline-block; margin-top: 10px; font-size: 0.9375rem; color: var(--blue-deep); }
+</style>

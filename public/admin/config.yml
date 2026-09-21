@@ -169,6 +169,14 @@ collections:
           - { label: "Text", name: "body", widget: "markdown" }
           - { label: "Fotografia", name: "imatge", widget: "image", required: false }
           - { label: "Email de contacte", name: "contacteEmail", widget: "string", required: false }
+      - name: "xorimusics"
+        label: "Xorimúsics"
+        file: "src/content/pagines/xorimusics.md"
+        fields:
+          - { label: "Títol", name: "titol", widget: "string" }
+          - { label: "Text", name: "body", widget: "markdown" }
+          - { label: "Fotografia", name: "imatge", widget: "image", required: false }
+          - { label: "Email de contacte", name: "contacteEmail", widget: "string", required: false, hint: "L'horari i el mapa dels assajos es mostren automàticament des de la pàgina 'Uneix-te'." }
       - name: "agenda"
         label: "Capçalera: Agenda"
         file: "src/content/pagines/agenda.md"
