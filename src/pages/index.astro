@@ -30,7 +30,7 @@ const ultimaActuacio = pastAmbCastells[0];
 const ultimsCastells = ultimaActuacio?.data.castells ?? [];
 
 const noticies = await getCollection('noticies', ({ data }) => data.estat === 'publicat');
-const ultimaNoticia = noticies.sort((a, b) => b.data.data.getTime() - a.data.data.getTime())[0];
+const ultimesNoticies = noticies.sort((a, b) => b.data.data.getTime() - a.data.data.getTime()).slice(0, 2);
 
 const pillClass = { descarregat: 'pill-moss', carregat: 'pill-gold', intent: 'pill-neutral' } as const;
 const pillLabel = { descarregat: 'Descarregat', carregat: 'Carregat', intent: 'Intent' } as const;
@@ -91,24 +91,31 @@ const heroImatge = mediaUrl(base, inici?.data.imatge);
       </>
     )}
 
-    {ultimaNoticia && (
-      <a class="card-row noticia-row" href={`${base}noticies/${ultimaNoticia.id}`}>
-        {mediaUrl(base, ultimaNoticia.data.imatge) && (
-          <img class="card-cartell" src={mediaUrl(base, ultimaNoticia.data.imatge)} alt="" />
-        )}
-        <div>
-          <div class="eyebrow">Última notícia</div>
-          <div class="meta">{formatDateShort(ultimaNoticia.data.data)}</div>
+    {ultimesNoticies.length > 0 && (
+      <div class="noticies-block">
+        <div class="section-head">
+          <div class="eyebrow">Notícies</div>
+          <a class="veure-totes" href={`${base}noticies`}>
+            Veure-les totes
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+          </a>
         </div>
-        <div style="flex:1; min-width:180px;">
-          <h2>{ultimaNoticia.data.titol}</h2>
-          <div class="meta">{ultimaNoticia.data.resum}</div>
-        </div>
-        <span class="card-link">
-          Llegir
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
-        </span>
-      </a>
+        {ultimesNoticies.map((noticia) => (
+          <a class="card-row noticia-row" href={`${base}noticies/${noticia.id}`}>
+            {mediaUrl(base, noticia.data.imatge) && (
+              <img class="card-cartell" src={mediaUrl(base, noticia.data.imatge)} alt="" />
+            )}
+            <div style="flex:1; min-width:180px;">
+              <h2>{noticia.data.titol}</h2>
+              <div class="meta">{formatDateShort(noticia.data.data)} · {noticia.data.resum}</div>
+            </div>
+            <span class="card-link">
+              Llegir
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            </span>
+          </a>
+        ))}
+      </div>
     )}
   </div>
 
@@ -158,7 +165,10 @@ const heroImatge = mediaUrl(base, inici?.data.imatge);
   .card-row h2 { font-size: 1.05rem; margin: 4px 0 2px; }
   .meta { font-size: 0.8125rem; color: var(--ink-soft); }
   .card-link { font-size: 0.8125rem; font-weight: 600; display: flex; align-items: center; gap: 6px; text-decoration: none; white-space: nowrap; }
-  .noticia-row { text-decoration: none; color: var(--ink); margin-bottom: 32px; }
+  .noticies-block { margin-bottom: 12px; }
+  .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 8px; }
+  .veure-totes { font-size: 0.8125rem; font-weight: 600; display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--blue-deep); }
+  .noticia-row { text-decoration: none; color: var(--ink); margin: 12px 0; }
   .noticia-row:hover { border-left-color: var(--blue-deep); }
   .noticia-row .card-link { color: var(--blue-deep); }
   .castells-head { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
