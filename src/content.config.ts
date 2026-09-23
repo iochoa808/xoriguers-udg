@@ -15,16 +15,25 @@ const agenda = defineCollection({
   schema: z.object({
     nom: z.string(),
     data: z.coerce.date(),
-    hora: z.string(),
-    lloc: z.string(),
-    poblacio: z.string(),
-    tipus: z.enum(['Actuacio', 'Assaig', 'Diada', 'Trobada']),
+    // optional because migrated history carries none and calendar events only
+    // have them once someone fills the location in
+    hora: z.preprocess(emptyToUndefined, z.string().optional()),
+    lloc: z.preprocess(emptyToUndefined, z.string().optional()),
+    poblacio: z.preprocess(emptyToUndefined, z.string().optional()),
+    tipus: z.enum(['Actuacio', 'Assaig', 'Diada', 'Trobada', 'Altres']),
     cartell: z.string().optional(),
     collesParticipants: z.array(z.string()).default([]),
     mostrarPortada: z.boolean().default(false),
     estat: z.enum(['esborrany', 'revisio', 'publicat']).default('esborrany'),
     cancelada: z.boolean().default(false),
     castells: z.array(castellFet).default([]),
+    /** Milestone notes from the registre: "Primer 5d7 de la historia". */
+    observacio: z.preprocess(emptyToUndefined, z.string().optional()),
+    /** The castells exactly as the registre wrote them, kept for provenance. */
+    notacioOriginal: z.preprocess(emptyToUndefined, z.string().optional()),
+    cccc: z.boolean().default(false),
+    /** Join key for the calendar importer. Left alone by editors. */
+    calendarUid: z.preprocess(emptyToUndefined, z.string().optional()),
   }),
 });
 

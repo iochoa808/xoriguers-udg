@@ -4,6 +4,7 @@ import { getCollection, getEntry } from 'astro:content';
 import { mediaUrl } from '../lib/media';
 import { isRealUrl } from '../lib/config';
 import { formatDateShort, formatDayMonth } from '../lib/format';
+import { detallsEsdeveniment } from '../lib/esdeveniment';
 
 const config = await getEntry('configuracio', 'general');
 const instagramUrl = isRealUrl(config?.data.instagramUrl) ? config!.data.instagramUrl : undefined;
@@ -65,7 +66,7 @@ const heroImatge = mediaUrl(base, inici?.data.imatge);
         </div>
         <div style="flex:1; min-width:180px;">
           <h2>{properaActuacio.data.nom}</h2>
-          <div class="meta">{properaActuacio.data.hora} · {properaActuacio.data.lloc}, {properaActuacio.data.poblacio}</div>
+          <div class="meta">{detallsEsdeveniment(properaActuacio.data.hora, properaActuacio.data.lloc, properaActuacio.data.poblacio)}</div>
         </div>
         <a class="card-link" href={`${base}agenda`}>
           Veure agenda

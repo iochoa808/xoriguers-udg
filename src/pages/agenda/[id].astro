@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
 import { mediaUrl } from '../../lib/media';
 import { formatDate } from '../../lib/format';
+import { detallsEsdeveniment, llocComplet } from '../../lib/esdeveniment';
 
 export async function getStaticPaths() {
   const agenda = await getCollection('agenda', ({ data }) => data.estat === 'publicat');
@@ -19,7 +20,12 @@ const pillClass = { descarregat: 'pill-moss', carregat: 'pill-gold', intent: 'pi
 const pillLabel = { descarregat: 'Descarregat', carregat: 'Carregat', intent: 'Intent' } as const;
 
 const base = import.meta.env.BASE_URL;
-const descripcio = `${formatDate(entry.data.data)} · ${entry.data.lloc}, ${entry.data.poblacio}`;
+const descripcio = [formatDate(entry.data.data), llocComplet(entry.data.lloc, entry.data.poblacio)]
+  .filter(Boolean)
+  .join(' · ');
+const detalls = [formatDate(entry.data.data), detallsEsdeveniment(entry.data.hora, entry.data.lloc, entry.data.poblacio)]
+  .filter(Boolean)
+  .join(' · ');
 ---
 <Base title={entry.data.nom} description={descripcio} heroImage={mediaUrl(base, entry.data.cartell)} showHeader={false}>
   <div class="wrap">
@@ -29,7 +35,7 @@ const descripcio = `${formatDate(entry.data.data)} · ${entry.data.lloc}, ${entr
       {entry.data.cancelada && <span class="pill pill-danger">Cancel·lada</span>}
     </div>
     <h1 class="display">{entry.data.nom}</h1>
-    <div class="meta">{formatDate(entry.data.data)} · {entry.data.hora} · {entry.data.lloc}, {entry.data.poblacio}</div>
+    <div class="meta">{detalls}</div>
     {mediaUrl(base, entry.data.cartell) && <img class="cartell" src={mediaUrl(base, entry.data.cartell)} alt="" />}
     {entry.data.collesParticipants.length > 0 && (
       <div class="chips">
@@ -39,6 +45,7 @@ const descripcio = `${formatDate(entry.data.data)} · ${entry.data.lloc}, ${entr
     <div class="body">
       <Content />
     </div>
+    {entry.data.observacio && <p class="observacio">{entry.data.observacio}</p>}
     {entry.data.castells.length > 0 && (
       <div class="castells">
         <div class="eyebrow">Castells fets</div>
@@ -66,6 +73,10 @@ const descripcio = `${formatDate(entry.data.data)} · ${entry.data.lloc}, ${entr
   .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
   .chip { border: 1px solid var(--line); border-radius: 99px; padding: 5px 12px; font-size: 0.8125rem; background: #fff; }
   .body { margin-top: 28px; font-size: 1rem; line-height: 1.7; color: var(--ink); max-width: 65ch; }
+  .observacio {
+    margin: 20px 0 0; padding: 12px 16px; background: var(--yellow-bg); color: var(--yellow-ink);
+    border-radius: 8px; font-size: 0.9375rem; font-weight: 600; max-width: 65ch;
+  }
   .castells { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line); }
   .castells-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 14px; margin-top: 14px; }
   .castell-tile { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 16px; text-align: center; }

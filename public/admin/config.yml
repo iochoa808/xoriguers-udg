@@ -37,17 +37,17 @@ collections:
     folder: "src/content/agenda"
     create: true
     identifier_field: "nom"
-    slug: "{{fields.nom}}"
+    slug: "{{fields.data}}-{{fields.nom}}"
     fields:
       - { label: "Nom", name: "nom", widget: "string" }
       - { label: "Data", name: "data", widget: "date" }
-      - { label: "Hora", name: "hora", widget: "string" }
-      - { label: "Lloc", name: "lloc", widget: "string" }
-      - { label: "Població", name: "poblacio", widget: "string" }
+      - { label: "Hora", name: "hora", widget: "string", required: false }
+      - { label: "Lloc", name: "lloc", widget: "string", required: false }
+      - { label: "Població", name: "poblacio", widget: "string", required: false }
       - label: "Tipus"
         name: "tipus"
         widget: "select"
-        options: ["Actuacio", "Assaig", "Diada", "Trobada"]
+        options: ["Actuacio", "Assaig", "Diada", "Trobada", "Altres"]
       - { label: "Cartell", name: "cartell", widget: "image", required: false }
       - { label: "Colles participants", name: "collesParticipants", widget: "list", required: false }
       - { label: "Mostrar a portada", name: "mostrarPortada", widget: "boolean", default: false, hint: "Si es marca, aquesta actuació es mostra a la portada com a propera actuació (encara que no sigui la més propera en data). Si cap actuació ho té marcat, es mostra automàticament la que ve abans." }
@@ -71,6 +71,10 @@ collections:
             options: ["descarregat", "carregat", "intent"]
           - { label: "Ronda", name: "ronda", widget: "number", required: false, value_type: "int" }
           - { label: "Foto", name: "foto", widget: "image", required: false }
+      - { label: "Observació", name: "observacio", widget: "string", required: false, hint: "Fites i notes: «Primer 5d7 de la història», «Cancel·lat per pluja». Es destaca a la fitxa i a l'historial." }
+      - { label: "Compta per al CCCC", name: "cccc", widget: "boolean", default: false, required: false }
+      - { label: "Notació original", name: "notacioOriginal", widget: "string", required: false, hint: "Els castells tal com es van escriure al registre antic. No cal tocar-ho." }
+      - { label: "Identificador del calendari", name: "calendarUid", widget: "string", required: false, hint: "L'omple la importació de Google Calendar. No el canviïs: és el que evita que es dupliqui l'esdeveniment." }
 
   - name: "noticies"
     label: "Notícies"
