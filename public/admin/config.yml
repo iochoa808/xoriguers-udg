@@ -196,9 +196,10 @@ collections:
           - { label: "Fotografia de capçalera", name: "imatge", widget: "image", required: false, hint: "Si no se'n puja cap, es fa servir la de Configuració general." }
           - { label: "Text introductori", name: "body", widget: "markdown", required: false, hint: "Text curt que es mostra a sota del títol. Es pot deixar buit." }
       - name: "castells"
-        label: "Capçalera: Castells"
+        label: "Capçalera: Historial de castells"
         file: "src/content/pagines/castells.md"
         fields:
+          - { label: "Títol", name: "titol", widget: "string", required: false }
           - { label: "Fotografia de capçalera", name: "imatge", widget: "image", required: false, hint: "Si no se'n puja cap, es fa servir la de Configuració general." }
           - { label: "Text introductori", name: "body", widget: "markdown", required: false, hint: "Text curt que es mostra a sota del títol. Es pot deixar buit." }
       - name: "documents"

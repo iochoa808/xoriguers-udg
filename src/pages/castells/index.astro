@@ -1,164 +1,599 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { getCollection, getEntry, render } from 'astro:content';
+import { getEntry, render } from 'astro:content';
 import { mediaUrl } from '../../lib/media';
-import { floors } from '../../lib/castell-notation';
-import { formatDate } from '../../lib/format';
+import { formatDateShort } from '../../lib/format';
+import csv from '../../data/historial_castells.csv?raw';
+import {
+  ES_FITA,
+  GAMMES,
+  normalitzaNom,
+  parseHistorial,
+  puntsDiada,
+  punts,
+  valorBase,
+  type CastellFet,
+  type DiadaHistorica,
+} from '../../lib/historial';
 
 const base = import.meta.env.BASE_URL;
 const capcalera = await getEntry('pagines', 'castells');
 const heroImage = mediaUrl(base, capcalera?.data.imatge);
 const { Content: IntroContent } = await render(capcalera!);
 
-const agenda = await getCollection('agenda', ({ data }) => data.estat === 'publicat');
+const diades = parseHistorial(csv);
+const totalCastells = diades.reduce((n, d) => n + d.castells.length, 0);
 
-const castells = agenda.flatMap((entry) =>
-  entry.data.castells.map((c) => ({
-    ...c,
-    data: entry.data.data,
-    actuacio: entry.data.nom,
-    actuacioId: entry.id,
-  }))
-);
+const dataText = (d: DiadaHistorica) => (d.data ? formatDateShort(d.data) : 's/d');
+const clau = (d: DiadaHistorica) => (d.data ? d.data.toISOString().slice(0, 10) : '');
+const perData = (a: DiadaHistorica, b: DiadaHistorica) => clau(b).localeCompare(clau(a));
 
-const counts = new Map<string, number>();
-for (const c of castells) {
-  counts.set(c.castell, (counts.get(c.castell) ?? 0) + 1);
+/* ---------- per temporada ---------- */
+const inici = (temporada: string) => Number(temporada.split('-')[0]);
+const temporades = [...new Set(diades.map((d) => d.temporada))].map((temporada) => {
+  const rows = diades.filter((d) => d.temporada === temporada).sort(perData);
+  const castells = rows.flatMap((d) => d.castells);
+  const sostre = castells.reduce((m, c) => Math.max(m, c.pilar ? 0 : c.pisos), 0);
+  return {
+    temporada,
+    any: inici(temporada),
+    rows,
+    destacats: [
+      ...new Set(castells.filter((c) => sostre > 0 && !c.pilar && c.pisos === sostre).map((c) => c.canonic)),
+    ],
+    fita: rows.find((d) => d.observacio && ES_FITA.test(d.observacio)) ?? null,
+    nCastells: castells.length,
+  };
+});
+
+// a season missing from the registre is shown as such rather than skipped over
+const anys = temporades.map((t) => t.any);
+type Fila = (typeof temporades)[number] | { buida: true; temporada: string; any: number };
+const files: Fila[] = [];
+for (let any = Math.max(...anys); any >= Math.min(...anys); any--) {
+  files.push(
+    temporades.find((t) => t.any === any) ?? { buida: true, temporada: `${any}-${any + 1}`, any }
+  );
 }
-const sortedCounts = [...counts.entries()].sort((a, b) => b[1] - a[1]);
 
-const tallestEntry = [...castells].sort((a, b) => floors(b.castell) - floors(a.castell))[0];
-
-const sortedByDate = [...castells].sort((a, b) => b.data.getTime() - a.data.getTime());
-const pillClass = { descarregat: 'pill-moss', carregat: 'pill-gold', intent: 'pill-neutral' } as const;
-const pillLabel = { descarregat: 'Descarregat', carregat: 'Carregat', intent: 'Intent' } as const;
-
-const perTemporada = new Map<number, number>();
-for (const c of castells) {
-  const any = c.estat !== 'intent';
-  if (!any) continue;
-  const year = c.data.getFullYear();
-  perTemporada.set(year, (perTemporada.get(year) ?? 0) + 1);
+/* ---------- resum històric ---------- */
+interface Recompte {
+  canonic: string;
+  pisos: number;
+  pilar: boolean;
+  tally: [number, number, number];
+  primera: DiadaHistorica | null;
+  ultima: DiadaHistorica | null;
 }
-const temporades = [...perTemporada.entries()].sort((a, b) => b[0] - a[0]);
-
-const perActuacio = new Map<string, { nom: string; data: Date; n: number }>();
-for (const c of castells) {
-  const prev = perActuacio.get(c.actuacioId);
-  if (prev) prev.n += 1;
-  else perActuacio.set(c.actuacioId, { nom: c.actuacio, data: c.data, n: 1 });
+const recomptes = new Map<string, Recompte>();
+for (const d of diades) {
+  for (const c of d.castells) {
+    if (c.canonic === 'figura') continue;
+    let r = recomptes.get(c.canonic);
+    if (!r) {
+      r = { canonic: c.canonic, pisos: c.pisos, pilar: c.pilar, tally: [0, 0, 0], primera: null, ultima: null };
+      recomptes.set(c.canonic, r);
+    }
+    r.tally[c.estat === 'descarregat' ? 0 : c.estat === 'carregat' ? 1 : 2]++;
+    if (d.data) {
+      if (!r.primera || d.data < r.primera.data!) r.primera = d;
+      if (!r.ultima || d.data > r.ultima.data!) r.ultima = d;
+    }
+  }
 }
-const millorDiada = [...perActuacio.values()].sort((a, b) => b.n - a.n)[0];
+const assignats = new Set<string>();
+const gammes = GAMMES.map((g) => {
+  const membres = [...recomptes.values()]
+    .filter((r) => {
+      if (assignats.has(r.canonic)) return false;
+      return g.test({ canonic: r.canonic, notacio: r.canonic, pisos: r.pisos, pilar: r.pilar, estat: 'descarregat' } as CastellFet);
+    })
+    .sort((a, b) => valorBase(b.canonic) - valorBase(a.canonic) || b.pisos - a.pisos || b.tally[0] - a.tally[0]);
+  membres.forEach((r) => assignats.add(r.canonic));
+  return { etiqueta: g.etiqueta, membres };
+}).filter((g) => g.membres.length > 0);
 
-const ambFoto = castells.filter((c) => mediaUrl(base, c.foto));
+/* ---------- llista de diades ---------- */
+const recurrencia = new Map<string, number>();
+for (const d of diades) {
+  const k = normalitzaNom(d.nom);
+  recurrencia.set(k, (recurrencia.get(k) ?? 0) + 1);
+}
+const llista = [...diades].sort(perData).map((d) => {
+  const clauNom = normalitzaNom(d.nom);
+  return {
+    diada: d,
+    punts: puntsDiada(d),
+    millor: d.castells.reduce((m, c) => Math.max(m, punts(c)), 0),
+    recurrencia: recurrencia.get(clauNom) ?? 1,
+    clauNom,
+    cerca: [d.nom, d.temporada, d.observacio, ...d.castells.map((c) => c.notacio)]
+      .join(' ')
+      .toLowerCase(),
+  };
+});
+
+const pillClass: Record<string, string> = {
+  descarregat: 'c-descarregat',
+  carregat: 'c-carregat',
+  intent: 'c-intent',
+};
 ---
-<Base title="Estadístiques" heroImage={heroImage}>
+<Base title={capcalera?.data.titol ?? 'Historial'} heroImage={heroImage}>
   <div class="wrap">
     {capcalera?.body?.trim() && (
       <div class="lead">
         <IntroContent />
       </div>
     )}
-    <div class="stat-grid">
-      <div class="stat-card">
-        <div class="label mono">Castell més alt</div>
-        <div class="big display">{tallestEntry?.castell ?? '—'}</div>
-        {tallestEntry && <div class="sub">{tallestEntry.actuacio} · {formatDate(tallestEntry.data)}</div>}
+    <p class="context">
+      Totes les actuacions de la colla des de la temporada {temporades[temporades.length - 1].temporada}:
+      <b>{diades.length}</b> diades, <b>{totalCastells.toLocaleString('ca-ES')}</b> castells i
+      <b>{temporades.length}</b> temporades.
+    </p>
+
+    <div class="controls">
+      <div class="lenses" role="tablist" aria-label="Vistes de l'arxiu">
+        <button class="lens-btn" id="tab-temporades" role="tab" aria-selected="true" aria-controls="panel-temporades">Per temporada</button>
+        <button class="lens-btn" id="tab-resum" role="tab" aria-selected="false" aria-controls="panel-resum">Resum històric</button>
+        <button class="lens-btn" id="tab-diades" role="tab" aria-selected="false" aria-controls="panel-diades">Diades</button>
       </div>
-      {millorDiada && (
-        <div class="stat-card">
-          <div class="label mono">Millor diada</div>
-          <div class="big display">{millorDiada.n} <span class="unit">castells</span></div>
-          <div class="sub">{millorDiada.nom} · {formatDate(millorDiada.data)}</div>
-        </div>
-      )}
-      <div class="stat-card counts">
-        <div class="label mono">Recompte per tipus</div>
-        <div class="count-list">
-          {sortedCounts.map(([notation, n]) => (
-            <div class="count-row">
-              <span class="mono">{notation}</span>
-              <span class="bar"><span style={`width:${(n / sortedCounts[0][1]) * 100}%`}></span></span>
-              <span class="mono n">{n}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div class="stat-card">
-        <div class="label mono">Castells per temporada</div>
-        <div class="count-list">
-          {temporades.map(([year, n]) => (
-            <div class="count-row temporada">
-              <span class="mono">{year}</span>
-              <span class="mono n">{n}</span>
-            </div>
-          ))}
-        </div>
+      <div class="search-wrap">
+        <label class="visually-hidden" for="cerca">Filtra per castell o per nom de diada</label>
+        <input type="search" id="cerca" placeholder="3d7, Marracos, Aniverfest…" />
+        <span class="hits" id="hits"></span>
       </div>
     </div>
 
-    {ambFoto.length > 0 && (
-      <>
-        <h2 class="display section-title">Fotos de castells</h2>
-        <div class="photo-grid">
-          {ambFoto.map((c) => (
-            <a class="photo-tile" href={`${base}agenda/${c.actuacioId}`}>
-              <img src={mediaUrl(base, c.foto)} alt={c.castell} loading="lazy" />
-              <span class="tag mono">{c.castell}</span>
-            </a>
-          ))}
-        </div>
-      </>
-    )}
-
-    <h2 class="display section-title">Historial</h2>
-    <div class="list">
-      {sortedByDate.map((c) => (
-        <div class="row">
-          <div class="date mono">{formatDate(c.data)}</div>
-          <div class="notation display">{c.castell}</div>
-          <div class="info">
-            <div>{c.actuacio}</div>
-            {c.ronda && <div class="meta">Ronda {c.ronda}</div>}
+    <section class="lens-panel" id="panel-temporades" role="tabpanel" aria-labelledby="tab-temporades">
+      <div class="col-head cols-temporades">
+        <span>Temporada</span>
+        <span class="num">Diades</span>
+        <span class="num">Castells</span>
+        <span>Destacats</span>
+        <span></span>
+      </div>
+      {files.map((f) =>
+        'buida' in f ? (
+          <div class="season buida">
+            <div class="season-head cols-temporades">
+              <div class="season-year">{f.temporada}</div>
+              <div class="season-n">—</div>
+              <div class="season-n">—</div>
+              <div class="season-cap">Sense dades al registre</div>
+              <div></div>
+            </div>
           </div>
-          <span class={`pill ${pillClass[c.estat]}`}>{pillLabel[c.estat]}</span>
-        </div>
-      ))}
-    </div>
+        ) : (
+          <div class="season" data-temporada={f.temporada}>
+            <div class="season-head cols-temporades" role="button" tabindex="0" aria-expanded="false">
+              <div class="season-year">{f.temporada}</div>
+              <div class="season-n">{f.rows.length}</div>
+              <div class="season-n">{f.nCastells}</div>
+              <div class="season-tops">
+                {f.destacats.map((c) => <span class="c c-descarregat">{c}</span>)}
+                {f.fita && <span class="fita">{f.fita.observacio}</span>}
+              </div>
+              <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </div>
+            <div class="season-body" hidden>
+              {f.rows.map((d) => (
+                <div class="diada" data-cerca={[d.nom, d.observacio, ...d.castells.map((c) => c.notacio)].join(' ').toLowerCase()}>
+                  <div class="diada-date">{dataText(d)}</div>
+                  <div>
+                    <div class="diada-name">{d.nom || '—'}</div>
+                    {d.castells.length > 0 ? (
+                      <div class="castells-row">
+                        {d.castells.map((c) => <span class={`c ${pillClass[c.estat]}`}>{c.notacio}</span>)}
+                      </div>
+                    ) : (
+                      <div class="raw-note">{d.castellsText || 'sense castells registrats'}</div>
+                    )}
+                    {d.observacio && (
+                      <div class={`obs${ES_FITA.test(d.observacio) ? ' is-fita' : ''}`}>{d.observacio}</div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      )}
+    </section>
+
+    <section class="lens-panel" id="panel-resum" role="tabpanel" aria-labelledby="tab-resum" hidden>
+      <div class="table-scroll">
+        <table class="resum">
+          <thead>
+            <tr>
+              <th>Castell</th>
+              <th>Descarregats + carregats + intents</th>
+              <th>Primer</th>
+              <th>Últim</th>
+            </tr>
+          </thead>
+          <tbody>
+            {gammes.map((g) => (
+              <>
+                <tr class="gamma"><th colspan="4" scope="colgroup">{g.etiqueta}</th></tr>
+                {g.membres.map((r) => (
+                  <tr data-cerca={r.canonic.toLowerCase()}>
+                    <td class="not">{r.canonic}</td>
+                    <td class="tally">
+                      <span class="desc">{r.tally[0]}</span>
+                      {r.tally[1] > 0 && <span> + <span class="carr">{r.tally[1]}c</span></span>}
+                      {r.tally[2] > 0 && <span> + <span class="int">{r.tally[2]}i</span></span>}
+                    </td>
+                    <td class="when">{r.primera ? dataText(r.primera) : 's/d'}</td>
+                    <td class="when">{r.ultima ? dataText(r.ultima) : 's/d'}</td>
+                  </tr>
+                ))}
+              </>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="lens-panel" id="panel-diades" role="tabpanel" aria-labelledby="tab-diades" hidden>
+      <div class="sortbar">
+        <label for="ordre">Ordena per</label>
+        <select id="ordre">
+          <option value="data-desc">Data · de la més recent</option>
+          <option value="data-asc">Data · de la més antiga</option>
+          <option value="recurrents">Diades que es repeteixen</option>
+          <option value="punts">Puntuació de la diada</option>
+          <option value="millor">Millor castell</option>
+          <option value="quantitat">Nombre de castells</option>
+        </select>
+      </div>
+      <div class="col-head cols-diades">
+        <span>Data</span>
+        <span>Temporada</span>
+        <span>Diada</span>
+        <span class="num">Punts</span>
+      </div>
+      <div id="llista-diades">
+        {llista.map((x) => (
+          <div
+            class="ditem"
+            data-d={clau(x.diada)}
+            data-punts={x.punts}
+            data-millor={x.millor}
+            data-n={x.diada.castells.length}
+            data-rec={x.recurrencia}
+            data-nom={x.clauNom}
+            data-cerca={x.cerca}
+          >
+            <div class="grouphead" hidden>
+              {x.diada.nom} <span>· {x.recurrencia} {x.recurrencia === 1 ? 'vegada' : 'edicions'}</span>
+            </div>
+            <div class="drow cols-diades">
+              <div class="diada-date">{dataText(x.diada)}</div>
+              <div class="diada-date">{x.diada.temporada}</div>
+              <div>
+                <div class="diada-name">{x.diada.nom || '—'}</div>
+                {x.diada.castells.length > 0 ? (
+                  <div class="castells-row">
+                    {x.diada.castells.map((c) => <span class={`c ${pillClass[c.estat]}`}>{c.notacio}</span>)}
+                  </div>
+                ) : (
+                  <span class="raw-note">{x.diada.castellsText || 'sense registre'}</span>
+                )}
+                {x.diada.observacio && (
+                  <div class={`obs${ES_FITA.test(x.diada.observacio) ? ' is-fita' : ''}`}>{x.diada.observacio}</div>
+                )}
+              </div>
+              <div class="pts" data-pts={x.punts}>{x.punts > 0 ? x.punts.toLocaleString('ca-ES') : ''}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p class="empty-state" id="cap-diada" hidden>Cap diada coincideix amb aquesta cerca.</p>
+    </section>
+
+    <p class="source">
+      Dades preses del registre històric de la colla. La notació antiga
+      (<span class="mono">4/5aco</span>, <span class="mono">p/4ps</span>) s'ha unificat amb la moderna
+      (<span class="mono">4d5</span>, <span class="mono">pd4</span>), conservant folre i agulla.
+    </p>
   </div>
 </Base>
 
+<noscript>
+  <style>
+    .lens-panel[hidden] { display: block !important; }
+    .season-body[hidden] { display: block !important; }
+    .controls .lenses, .sortbar { display: none; }
+  </style>
+</noscript>
+
+<script>
+  const panels = ['temporades', 'resum', 'diades'];
+  const tab = (name: string) => document.getElementById('tab-' + name)!;
+  const panel = (name: string) => document.getElementById('panel-' + name)!;
+
+  panels.forEach((name) => {
+    tab(name).addEventListener('click', () => {
+      panels.forEach((other) => {
+        tab(other).setAttribute('aria-selected', String(other === name));
+        (panel(other) as HTMLElement).hidden = other !== name;
+      });
+    });
+  });
+
+  /* ---------- expand a season ---------- */
+  function toggleSeason(head: HTMLElement) {
+    const season = head.closest('.season')!;
+    if (season.classList.contains('buida')) return;
+    const body = season.querySelector('.season-body') as HTMLElement;
+    const open = season.classList.toggle('open');
+    head.setAttribute('aria-expanded', String(open));
+    body.hidden = !open;
+  }
+
+  const temporadesPanel = panel('temporades');
+  temporadesPanel.addEventListener('click', (e) => {
+    const head = (e.target as HTMLElement).closest('.season-head') as HTMLElement | null;
+    if (head) toggleSeason(head);
+  });
+  temporadesPanel.addEventListener('keydown', (e) => {
+    const key = (e as KeyboardEvent).key;
+    if (key !== 'Enter' && key !== ' ') return;
+    const head = (e.target as HTMLElement).closest('.season-head[role="button"]') as HTMLElement | null;
+    if (!head) return;
+    e.preventDefault();
+    toggleSeason(head);
+  });
+
+  /* ---------- order the diades ---------- */
+  const llista = document.getElementById('llista-diades')!;
+  const items = Array.from(llista.querySelectorAll<HTMLElement>('.ditem'));
+  const num = (el: HTMLElement, key: string) => Number(el.dataset[key] ?? 0);
+
+  const ordres: Record<string, (a: HTMLElement, b: HTMLElement) => number> = {
+    'data-desc': (a, b) => (b.dataset.d ?? '').localeCompare(a.dataset.d ?? ''),
+    'data-asc': (a, b) => (a.dataset.d ?? '').localeCompare(b.dataset.d ?? ''),
+    punts: (a, b) => num(b, 'punts') - num(a, 'punts') || (b.dataset.d ?? '').localeCompare(a.dataset.d ?? ''),
+    millor: (a, b) => num(b, 'millor') - num(a, 'millor') || num(b, 'punts') - num(a, 'punts'),
+    quantitat: (a, b) => num(b, 'n') - num(a, 'n') || (b.dataset.d ?? '').localeCompare(a.dataset.d ?? ''),
+    recurrents: (a, b) => {
+      const diff = num(b, 'rec') - num(a, 'rec');
+      if (diff) return diff;
+      const noms = (a.dataset.nom ?? '').localeCompare(b.dataset.nom ?? '', 'ca');
+      return noms || (b.dataset.d ?? '').localeCompare(a.dataset.d ?? '');
+    },
+  };
+
+  const ordre = document.getElementById('ordre') as HTMLSelectElement;
+
+  function reorder() {
+    const mode = ordre.value;
+    const sorted = [...items].sort(ordres[mode]);
+    sorted.forEach((item) => llista.appendChild(item));
+
+    // only the recurrents view groups, so it is the only one that shows the headers
+    let previous: string | null = null;
+    for (const item of sorted) {
+      const header = item.querySelector('.grouphead') as HTMLElement;
+      const visible = item.style.display !== 'none';
+      const starts = mode === 'recurrents' && visible && item.dataset.nom !== previous;
+      header.hidden = !starts;
+      if (visible) previous = item.dataset.nom ?? null;
+    }
+    llista.classList.toggle('agrupada', mode === 'recurrents');
+  }
+
+  ordre.addEventListener('change', reorder);
+
+  /* ---------- filter everything ---------- */
+  const cerca = document.getElementById('cerca') as HTMLInputElement;
+  const hits = document.getElementById('hits')!;
+  const capDiada = document.getElementById('cap-diada') as HTMLElement;
+  const diadesTemporada = Array.from(temporadesPanel.querySelectorAll<HTMLElement>('.diada'));
+  const seasons = Array.from(temporadesPanel.querySelectorAll<HTMLElement>('.season'));
+  const filesResum = Array.from(document.querySelectorAll<HTMLElement>('.resum tbody tr[data-cerca]'));
+
+  function filter() {
+    const q = cerca.value.trim().toLowerCase();
+
+    for (const item of items) {
+      item.style.display = !q || (item.dataset.cerca ?? '').includes(q) ? '' : 'none';
+    }
+    const visibles = items.filter((i) => i.style.display !== 'none').length;
+    capDiada.hidden = visibles > 0;
+
+    for (const d of diadesTemporada) {
+      d.style.display = !q || (d.dataset.cerca ?? '').includes(q) ? '' : 'none';
+    }
+    for (const season of seasons) {
+      if (season.classList.contains('buida')) {
+        season.style.display = q ? 'none' : '';
+        continue;
+      }
+      const body = season.querySelector('.season-body') as HTMLElement;
+      const any = Array.from(season.querySelectorAll<HTMLElement>('.diada')).some(
+        (d) => d.style.display !== 'none'
+      );
+      season.style.display = any ? '' : 'none';
+      if (q && any) {
+        season.classList.add('open');
+        body.hidden = false;
+        season.querySelector('.season-head')!.setAttribute('aria-expanded', 'true');
+      }
+    }
+
+    for (const row of filesResum) {
+      row.style.display = !q || (row.dataset.cerca ?? '').includes(q) ? '' : 'none';
+    }
+    for (const header of document.querySelectorAll<HTMLElement>('.resum tr.gamma')) {
+      let sibling = header.nextElementSibling as HTMLElement | null;
+      let any = false;
+      while (sibling && !sibling.classList.contains('gamma')) {
+        if (sibling.style.display !== 'none') any = true;
+        sibling = sibling.nextElementSibling as HTMLElement | null;
+      }
+      header.style.display = any ? '' : 'none';
+    }
+
+    hits.textContent = q ? `${visibles} de ${items.length} diades` : '';
+    reorder();
+  }
+
+  cerca.addEventListener('input', filter);
+  reorder();
+</script>
+
 <style>
-  .wrap { max-width: 960px; margin: 0 auto; padding: 40px 28px 60px; }
-  .lead { color: var(--ink-soft); margin-bottom: 28px; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 40px 28px 60px; }
+  .lead { color: var(--ink-soft); margin-bottom: 18px; }
   .lead :global(p) { margin: 0; }
-  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 40px; }
-  .stat-card { background: #fff; border: 1px solid var(--line); border-top: 4px solid var(--blue); border-radius: 8px; padding: 22px; }
-  .label { font-size: 0.6875rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; }
-  .big { font-size: 3rem; color: var(--blue-deep); line-height: 1; margin-top: 10px; }
-  .big .unit { font-size: 1.1rem; text-transform: none; letter-spacing: 0; color: var(--ink-soft); }
-  .sub { font-size: 0.8125rem; color: var(--ink-soft); margin-top: 6px; }
-  .count-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
-  .count-row { display: grid; grid-template-columns: 44px 1fr 24px; align-items: center; gap: 10px; font-size: 0.8125rem; }
-  .count-row.temporada { grid-template-columns: 1fr auto; }
-  .bar { background: var(--bg-deep); border-radius: 4px; height: 8px; overflow: hidden; }
-  .bar span { display: block; height: 100%; background: var(--blue); border-radius: 4px; }
-  .n { text-align: right; color: var(--ink-soft); }
-  .section-title { font-size: 1.4rem; margin: 8px 0 16px; }
-  .photo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 40px; }
-  .photo-tile { position: relative; display: block; aspect-ratio: 1; border-radius: 8px; overflow: hidden; }
-  .photo-tile img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .photo-tile .tag {
-    position: absolute; left: 8px; bottom: 8px; background: rgba(22,35,44,0.75); color: #fff;
-    font-size: 0.6875rem; padding: 2px 8px; border-radius: 99px;
+  .context { margin: 0 0 24px; max-width: 60ch; color: var(--ink-soft); font-size: 0.9375rem; }
+  .context b { color: var(--ink); font-weight: 600; }
+  .visually-hidden {
+    position: absolute; width: 1px; height: 1px; overflow: hidden;
+    clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
   }
-  .list { display: flex; flex-direction: column; gap: 10px; }
-  .row {
-    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
-    background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 14px 18px;
+
+  /* ---------- controls ---------- */
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 14px 24px; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--line); padding-bottom: 10px; margin-bottom: 22px;
   }
-  .date { font-size: 0.8125rem; color: var(--ink-soft); width: 140px; flex: none; }
-  .notation { font-size: 1.4rem; width: 70px; flex: none; }
-  .info { flex: 1; min-width: 140px; font-size: 0.9375rem; }
-  .meta { font-size: 0.75rem; color: var(--ink-soft); }
+  .lenses { display: flex; gap: 22px; flex-wrap: wrap; }
+  .lens-btn {
+    appearance: none; border: 0; border-bottom: 2px solid transparent; background: none;
+    color: var(--ink-soft); font-family: inherit; font-size: 0.9375rem; font-weight: 600;
+    padding: 6px 0; cursor: pointer;
+  }
+  .lens-btn:hover { color: var(--blue-deep); }
+  .lens-btn[aria-selected='true'] { color: var(--ink); border-bottom-color: var(--blue); }
+  .lens-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+  .search-wrap { display: flex; align-items: center; gap: 10px; }
+  input[type='search'], select {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.8125rem; padding: 7px 11px;
+    border: 1px solid var(--line-firm, #b9d7e5); border-radius: 4px; background: var(--bg); color: var(--ink);
+  }
+  input[type='search'] { width: 220px; max-width: 46vw; }
+  input[type='search']:focus-visible, select:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+  .hits { font-size: 0.75rem; color: var(--ink-soft); white-space: nowrap; }
+  .sortbar { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; padding: 0 4px 14px; }
+  .sortbar label {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.6875rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft);
+  }
+
+  /* ---------- shared row grammar ---------- */
+  .cols-temporades { grid-template-columns: 7rem 4.2rem 4.6rem minmax(0, 1fr) 1.2rem; }
+  .cols-diades { grid-template-columns: 7rem 5.5rem minmax(0, 1fr) 4.5rem; }
+  .col-head {
+    display: grid; gap: 16px; padding: 0 4px 7px; border-bottom: 1px solid var(--ink);
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.625rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft);
+  }
+  .col-head .num { text-align: right; }
+  .grouphead, .resum tr.gamma th {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.6875rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue-deep); font-weight: 600;
+    background: var(--bg-deep); border-bottom: 1px solid var(--line-firm, #b9d7e5); padding: 8px 4px;
+  }
+  .grouphead span { color: var(--ink-soft); font-weight: 400; letter-spacing: 0.04em; text-transform: none; }
+  .agrupada .ditem:not(:first-child) .grouphead:not([hidden]) { margin-top: 14px; }
+
+  .c {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.75rem; font-weight: 500;
+    border-radius: 99px; padding: 2px 9px; white-space: nowrap;
+  }
+  .c-descarregat { background: var(--moss-bg); color: var(--moss); }
+  .c-carregat { background: var(--yellow-bg); color: var(--yellow-ink); }
+  .c-intent { background: var(--neutral-bg); color: var(--neutral-ink); }
+  .castells-row { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .fita {
+    font-size: 0.75rem; font-weight: 600; color: var(--yellow-ink); background: var(--yellow-bg);
+    border-radius: 99px; padding: 2px 9px; white-space: nowrap;
+  }
+
+  /* ---------- per temporada ---------- */
+  .season { border-bottom: 1px solid var(--line); }
+  .season-head { display: grid; gap: 16px; align-items: center; padding: 10px 4px; cursor: pointer; }
+  .season-head:hover, .season.open > .season-head { background: var(--bg-deep); }
+  .season-head:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+  .season-year {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.875rem; font-weight: 600;
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .season-n {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.8125rem;
+    color: var(--ink-soft); text-align: right; font-variant-numeric: tabular-nums;
+  }
+  .season-tops { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; }
+  .season-cap { color: var(--ink-faint, #8aa3ae); font-size: 0.8125rem; }
+  .chev { color: var(--ink-faint, #8aa3ae); transition: transform 0.15s; justify-self: end; }
+  .season.open .chev { transform: rotate(90deg); }
+  .season.buida .season-head { cursor: default; }
+  .season.buida .season-head:hover { background: transparent; }
+  .season.buida .season-year { color: var(--ink-faint, #8aa3ae); }
+  .season-body { padding: 2px 4px 18px; }
+
+  .diada { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: 16px; padding: 8px 0; border-top: 1px solid var(--line); }
+  .diada-date {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.75rem;
+    color: var(--ink-soft); white-space: nowrap;
+  }
+  .diada-name { font-size: 0.9375rem; }
+  .obs { margin-top: 6px; font-size: 0.8125rem; color: var(--ink-soft); }
+  .obs.is-fita { color: var(--yellow-ink); font-weight: 600; }
+  .raw-note {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.75rem;
+    color: var(--ink-faint, #8aa3ae); margin-top: 5px;
+  }
+
+  /* ---------- resum històric ---------- */
+  .table-scroll { overflow-x: auto; }
+  table.resum { width: 100%; border-collapse: collapse; }
+  .resum th, .resum td { text-align: left; padding: 7px 12px 7px 4px; }
+  .resum thead th {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.625rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-soft); font-weight: 400;
+    border-bottom: 1px solid var(--ink); white-space: nowrap;
+  }
+  .resum tbody td { border-bottom: 1px solid var(--line); }
+  .not { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.9375rem; font-weight: 600; white-space: nowrap; }
+  .tally {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.875rem;
+    white-space: nowrap; font-variant-numeric: tabular-nums;
+  }
+  .tally .desc { font-weight: 600; }
+  .tally .carr { color: var(--yellow-ink); }
+  .tally .int { color: var(--neutral-ink); }
+  .when {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.75rem;
+    color: var(--ink-soft); white-space: nowrap;
+  }
+
+  /* ---------- diades ---------- */
+  .drow { display: grid; gap: 16px; align-items: baseline; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+  .drow:hover { background: var(--bg-deep); }
+  .pts {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.8125rem; color: var(--ink-soft);
+    text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .empty-state { padding: 34px 4px; color: var(--ink-soft); }
+  .source {
+    border-top: 1px solid var(--line); margin-top: 34px; padding-top: 16px;
+    font-size: 0.8125rem; color: var(--ink-soft);
+  }
+
+  @media (max-width: 760px) {
+    .col-head { display: none; }
+    .cols-temporades { grid-template-columns: 1fr auto; row-gap: 8px; }
+    .cols-diades { grid-template-columns: 1fr; gap: 3px; }
+    .season-n { text-align: left; }
+    .season-tops { grid-column: 1 / -1; }
+    .diada { grid-template-columns: 1fr; gap: 4px; }
+    .pts { text-align: left; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .chev { transition: none; }
+  }
 </style>
