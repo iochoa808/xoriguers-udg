@@ -1,32 +1,66 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { getEntry, render } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import { mediaUrl } from '../../lib/media';
 import { formatDateShort } from '../../lib/format';
-import csv from '../../data/historial_castells.csv?raw';
+import { temporadaDe } from '../../lib/esdeveniment';
 import {
   ES_FITA,
   GAMMES,
   normalitzaNom,
-  parseHistorial,
+  parseCastell,
   puntsDiada,
   punts,
   valorBase,
   type CastellFet,
-  type DiadaHistorica,
 } from '../../lib/historial';
+
+interface Diada {
+  data: Date;
+  temporada: string;
+  nom: string;
+  castells: CastellFet[];
+  castellsText: string;
+  observacio: string;
+}
 
 const base = import.meta.env.BASE_URL;
 const capcalera = await getEntry('pagines', 'castells');
 const heroImage = mediaUrl(base, capcalera?.data.imatge);
 const { Content: IntroContent } = await render(capcalera!);
 
-const diades = parseHistorial(csv);
+// the archive is simply the past of the agenda. Practices are left out, unless
+// castells were actually recorded at one — then they are part of what the colla
+// has built, whatever the event was called.
+const ara = new Date();
+const passat = await getCollection(
+  'agenda',
+  ({ data }) =>
+    data.estat === 'publicat' &&
+    data.data <= ara &&
+    (data.tipus !== 'Assaig' || data.castells.length > 0)
+);
+
+const diades: Diada[] = passat.map((e) => ({
+  data: e.data.data,
+  temporada: temporadaDe(e.data.data),
+  nom: e.data.nom,
+  castells: e.data.castells.map((c) => {
+    const llegit = parseCastell(c.castell);
+    // the recorded estat wins: it is its own field, not something to re-derive
+    return llegit
+      ? { ...llegit, estat: c.estat }
+      : { canonic: c.castell, notacio: c.castell, pisos: 0, pilar: false, estat: c.estat };
+  }),
+  castellsText: e.data.notacioOriginal ?? '',
+  observacio: e.data.observacio ?? '',
+}));
+
 const totalCastells = diades.reduce((n, d) => n + d.castells.length, 0);
 
-const dataText = (d: DiadaHistorica) => (d.data ? formatDateShort(d.data) : 's/d');
-const clau = (d: DiadaHistorica) => (d.data ? d.data.toISOString().slice(0, 10) : '');
-const perData = (a: DiadaHistorica, b: DiadaHistorica) => clau(b).localeCompare(clau(a));
+const dataText = (d: Diada) => formatDateShort(d.data);
+const clau = (d: Diada) => d.data.toISOString().slice(0, 10);
+const perData = (a: Diada, b: Diada) => clau(b).localeCompare(clau(a));
 
 /* ---------- per temporada ---------- */
 const inici = (temporada: string) => Number(temporada.split('-')[0]);
@@ -62,8 +96,8 @@ interface Recompte {
   pisos: number;
   pilar: boolean;
   tally: [number, number, number];
-  primera: DiadaHistorica | null;
-  ultima: DiadaHistorica | null;
+  primera: Diada | null;
+  ultima: Diada | null;
 }
 const recomptes = new Map<string, Recompte>();
 for (const d of diades) {
@@ -75,10 +109,8 @@ for (const d of diades) {
       recomptes.set(c.canonic, r);
     }
     r.tally[c.estat === 'descarregat' ? 0 : c.estat === 'carregat' ? 1 : 2]++;
-    if (d.data) {
-      if (!r.primera || d.data < r.primera.data!) r.primera = d;
-      if (!r.ultima || d.data > r.ultima.data!) r.ultima = d;
-    }
+    if (!r.primera || d.data < r.primera.data) r.primera = d;
+    if (!r.ultima || d.data > r.ultima.data) r.ultima = d;
   }
 }
 const assignats = new Set<string>();

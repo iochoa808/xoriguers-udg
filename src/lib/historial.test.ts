@@ -92,6 +92,21 @@ describe('parseHistorial', () => {
     expect(diades[2].castells.map((c) => c.canonic)).toEqual(['4d5a', '3d5']);
   });
 
+  it('treats a lone "i" as the Catalan "and", not as an intent', () => {
+    const [d] = parseHistorial(
+      'Data,Curs,Nom,Castells,CCCC,observacions\n01/12/2011,2011-2012,x,"p4, 5d6, 4d7, 2d6 i p5",,'
+    );
+    expect(d.castells.map((c) => c.canonic)).toEqual(['pd4', '5d6', '4d7', '2d6', 'pd5']);
+    expect(d.castells.every((c) => c.estat === 'descarregat')).toBe(true);
+  });
+
+  it('still reads written-out intents', () => {
+    const [d] = parseHistorial(
+      'Data,Curs,Nom,Castells,CCCC,observacions\n01/12/2011,2011-2012,x,id4d7 3d6i 2/5id,,'
+    );
+    expect(d.castells.map((c) => c.estat)).toEqual(['intent', 'intent', 'intent']);
+  });
+
   it('carries the observacions and the CCCC flag', () => {
     expect(diades[1].observacio).toBe('COLLA DE VUIT');
     expect(diades[2].cccc).toBe(true);

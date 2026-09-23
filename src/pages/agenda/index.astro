@@ -5,7 +5,13 @@ import { formatDate } from '../../lib/format';
 import { mediaUrl } from '../../lib/media';
 import { detallsEsdeveniment } from '../../lib/esdeveniment';
 
-const agenda = await getCollection('agenda', ({ data }) => data.estat === 'publicat');
+// only what is still to come; everything past belongs to the historial
+const avui = new Date();
+avui.setHours(0, 0, 0, 0);
+const agenda = await getCollection(
+  'agenda',
+  ({ data }) => data.estat === 'publicat' && data.data >= avui
+);
 const sorted = agenda.sort((a, b) => a.data.data.getTime() - b.data.data.getTime());
 
 const config = await getEntry('configuracio', 'general');
@@ -37,7 +43,12 @@ const { Content: IntroContent } = await render(capcalera!);
           <span class="pill pill-neutral">{entry.data.tipus}</span>
         </a>
       ))}
-      {sorted.length === 0 && <p class="empty">Encara no hi ha cap actuació publicada.</p>}
+      {sorted.length === 0 && (
+        <p class="empty">
+          No hi ha cap actuació programada ara mateix. Les que ja s'han fet són a l'
+          <a href={`${base}castells`}>historial de castells</a>.
+        </p>
+      )}
     </div>
 
     <h2 class="display section-title">Calendari</h2>

@@ -201,7 +201,9 @@ export function parseHistorial(csv: string): DiadaHistorica[] {
         if (previous && MODIFIER.test(token)) {
           const t = token.toLowerCase();
           if (t === 'c' && previous.estat === 'descarregat') previous.estat = 'carregat';
-          if (t === 'i' || t === 'id') previous.estat = 'intent';
+          // a lone "i" is the Catalan "and" joining the last two castells
+          // ("2d6 i p5"), never an intent — those are written id, i3d7 or 3d6i
+          if (t === 'id') previous.estat = 'intent';
           if ((t === 'f' || t === 'a' || t === 'ag') && !previous.canonic.endsWith(t[0])) {
             previous.canonic += t[0];
           }
@@ -283,7 +285,7 @@ export function punts(castell: CastellFet): number {
   return castell.estat === 'carregat' ? Math.round(base * 0.82) : base;
 }
 
-export function puntsDiada(diada: DiadaHistorica): number {
+export function puntsDiada(diada: { castells: CastellFet[] }): number {
   return diada.castells.reduce((total, c) => total + punts(c), 0);
 }
 
