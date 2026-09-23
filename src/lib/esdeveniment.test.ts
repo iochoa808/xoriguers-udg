@@ -1,5 +1,42 @@
 import { describe, expect, it } from 'vitest';
-import { detallsEsdeveniment, llocComplet } from './esdeveniment';
+import { classificaEsdeveniment, detallsEsdeveniment, llocComplet, temporadaDe } from './esdeveniment';
+
+describe('classificaEsdeveniment', () => {
+  it('reads the calendar\'s own naming', () => {
+    expect(classificaEsdeveniment('ASSAIG')).toBe('Assaig');
+    expect(classificaEsdeveniment('ACTUACIÓ RESA')).toBe('Actuacio');
+  });
+
+  it('reads the registre històric\'s naming', () => {
+    expect(classificaEsdeveniment('Diada hivern Xoriguers')).toBe('Diada');
+    expect(classificaEsdeveniment('Actuació viatge Logroño')).toBe('Actuacio');
+    expect(classificaEsdeveniment('Trobada Interiuta')).toBe('Trobada');
+  });
+
+  it('never files a practice as a performance', () => {
+    expect(classificaEsdeveniment('Assaig obert de primavera')).toBe('Assaig');
+    expect(classificaEsdeveniment("Assajos d'estiu")).toBe('Assaig');
+  });
+
+  it('falls back to an actuació for names that say nothing', () => {
+    expect(classificaEsdeveniment('Aniverfest')).toBe('Actuacio');
+    expect(classificaEsdeveniment("Colles de l'eix")).toBe('Actuacio');
+  });
+});
+
+describe('temporadaDe', () => {
+  const at = (iso: string) => temporadaDe(new Date(iso));
+
+  it('starts a season in September', () => {
+    expect(at('2025-09-25')).toBe('2025-2026');
+    expect(at('2025-08-31')).toBe('2024-2025');
+  });
+
+  it('keeps the spring on the season that began the autumn before', () => {
+    expect(at('2026-05-28')).toBe('2025-2026');
+    expect(at('2023-06-17')).toBe('2022-2023');
+  });
+});
 
 describe('llocComplet', () => {
   it('joins the venue and the town', () => {
