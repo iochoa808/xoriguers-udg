@@ -1,0 +1,45 @@
+name: Sync agenda with Google Calendar
+
+on:
+  schedule:
+    # 04:00 UTC, so the agenda is up to date before anyone reads it
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: import-calendar
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # no npm ci: the importer only uses Node built-ins and the project's own
+      # TypeScript helpers, which Node runs by stripping the types
+      - name: Import events
+        env:
+          NODE_OPTIONS: --experimental-strip-types
+        run: node scripts/import-calendar.mjs
+
+      - name: Commit any changes
+        run: |
+          if [ -z "$(git status --porcelain src/content/agenda)" ]; then
+            echo "L'agenda ja estava al dia."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/content/agenda
+          git commit -m "Sincronitza l'agenda amb el calendari"
+          git push

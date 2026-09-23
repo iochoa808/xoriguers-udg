@@ -3,6 +3,11 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  # a push made by the importer does not trigger workflows on its own, and
+  # rebuilding daily also keeps the agenda/historial split right as dates pass
+  workflow_run:
+    workflows: ['Sync agenda with Google Calendar']
+    types: [completed]
   workflow_dispatch:
 
 permissions:

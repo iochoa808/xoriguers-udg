@@ -9,7 +9,8 @@
     "preview": "astro preview",
     "cms": "decap-server",
     "dev:all": "concurrently -k \"npm:dev\" \"npm:cms\"",
-    "test": "vitest run"
+    "test": "vitest run",
+    "import:calendar": "node scripts/import-calendar.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
