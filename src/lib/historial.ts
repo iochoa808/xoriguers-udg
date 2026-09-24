@@ -53,9 +53,12 @@ export function parseCsv(src: string): string[][] {
   return rows.filter((r) => r.some((c) => c.trim()));
 }
 
-const CASTELL = /^(id|i)?(\d+)?(p|\d+)(?:d|\/)(\d+)([a-zç]*)$/i;
+// the separator is normally "d" ("4d7"); "ors" marks a non-traditional build
+// the colla writes differently on purpose, as in 6ors5 for a sis de cinc
+const CASTELL = /^(id|i)?(\d+)?(p|\d+)(d|\/|ors)(\d+)([a-zç]*)$/i;
 const MODIFIER = /^(net|aco|ag|a|c|i|id|f|fc|fem|ps|n|cam|conjunt|germanor|de|amb)$/i;
-const FIGURA = /^(vano|vanod\d|van\d|\d+ors\d)$/i;
+/** vano de 5, van5, vanod3 — one token standing for three pilars at once. */
+const VANO = /^van(?:o)?d?(\d+)(id|i|c)?$/i;
 
 function normalise(token: string): string {
   return token
@@ -76,20 +79,22 @@ function splitNote(token: string): { core: string; note: string } {
 
 export function parseCastell(token: string): CastellFet | null {
   const { core, note } = splitNote(token);
-  if (FIGURA.test(core.replace(/\.$/, ''))) {
-    return { canonic: 'figura', notacio: token, pisos: 0, pilar: false, estat: 'descarregat' };
-  }
 
   const normalised = normalise(core);
   const m = normalised.match(CASTELL);
   if (!m) return null;
 
-  const [, prefix, multiplier, base, pisosRaw, suffixRaw] = m;
+  const [, prefix, multiplier, base, separador, pisosRaw, suffixRaw] = m;
   const pilar = base.toLowerCase() === 'p';
   const pisos = Number(pisosRaw);
+  const noTradicional = separador.toLowerCase() === 'ors';
 
-  // Peel the suffix in three passes: old-notation words, outcome, then structure.
-  let suffix = (suffixRaw || '').toLowerCase().replace(/aco|net|ps|cam|sim|fem|dol/g, '');
+  // Peel the suffix in four passes: the figuereta, old-notation words, the
+  // outcome, then whatever structure is left.
+  let suffix = (suffixRaw || '').toLowerCase();
+  // before folre and agulla, or the f and g of "fig" would be mistaken for them
+  const figuereta = /fig(uereta)?/.test(suffix);
+  suffix = suffix.replace(/fig(uereta)?/g, '').replace(/aco|net|ps|cam|sim|fem|dol/g, '');
 
   let estat: Estat = 'descarregat';
   if (prefix === 'id' || prefix === 'i') estat = 'intent';
@@ -107,12 +112,32 @@ export function parseCastell(token: string): CastellFet | null {
 
   const count = multiplier && +multiplier > 1 ? multiplier : '';
   const canonic =
-    `${count}${pilar ? 'p' : base}d${pisos}` +
+    `${count}${pilar ? 'p' : base}${noTradicional ? 'ors' : 'd'}${pisos}` +
     (suffix.includes('f') ? 'f' : '') +
     (suffix.includes('m') ? 'm' : '') +
-    (/[ag]/.test(suffix) ? 'a' : '');
+    (/[ag]/.test(suffix) ? 'a' : '') +
+    (figuereta ? 'fig' : '');
 
   return { canonic, notacio: token, pisos, pilar, estat };
+}
+
+/**
+ * A token can stand for more than one castell: a vano is three pilars raised
+ * together, one de N flanked by two de N-1, so "vano de 5" is pd5 and 2pd4.
+ */
+export function parseCastells(token: string): CastellFet[] {
+  const vano = token.match(VANO);
+  if (vano) {
+    const pisos = Number(vano[1]);
+    const marca = (vano[2] || '').toLowerCase();
+    const estat: Estat = marca === 'c' ? 'carregat' : marca ? 'intent' : 'descarregat';
+    return [
+      { canonic: `pd${pisos}`, notacio: token, pisos, pilar: true, estat },
+      { canonic: `2pd${pisos - 1}`, notacio: token, pisos: pisos - 1, pilar: true, estat },
+    ];
+  }
+  const un = parseCastell(token);
+  return un ? [un] : [];
 }
 
 /**
@@ -190,10 +215,12 @@ export function parseHistorial(csv: string): DiadaHistorica[] {
     const castells: CastellFet[] = [];
 
     if (castellsText && castellsText !== '-') {
-      for (const token of castellsText.split(/[,\s]+/).filter(Boolean)) {
-        const castell = parseCastell(token);
-        if (castell) {
-          castells.push(castell);
+      // the registre writes a vano out in words as often as not
+      const text = castellsText.replace(/\bvano\s+de\s+(\d+)/gi, 'vano$1');
+      for (const token of text.split(/[,\s]+/).filter(Boolean)) {
+        const llegits = parseCastells(token);
+        if (llegits.length) {
+          castells.push(...llegits);
           continue;
         }
         // a bare modifier belongs to the castell before it ("3/5 aco net", "4d7 c")
@@ -253,7 +280,7 @@ const PROVISIONAL: Record<string, number> = {
   '3d6a': 190,
   '3d6': 130,
   '4d6': 120,
-  '2d5fa': 120,
+  '2d5fig': 120,
   '2d5': 110,
   '5d5': 95,
   '4d5a': 90,

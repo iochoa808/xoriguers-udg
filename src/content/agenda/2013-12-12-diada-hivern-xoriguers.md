@@ -11,7 +11,9 @@ castells:
     estat: descarregat
   - castell: "7d6"
     estat: descarregat
-  - castell: "figura"
+  - castell: "pd5"
+    estat: descarregat
+  - castell: "2pd4"
     estat: descarregat
 notacioOriginal: "4d7 3d7 7d6 van5"
 observacio: "primer 7d6, millor actuacio hivern"

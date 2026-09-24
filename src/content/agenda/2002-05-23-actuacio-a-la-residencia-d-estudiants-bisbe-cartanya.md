@@ -9,7 +9,9 @@ castells:
     estat: descarregat
   - castell: "4d5"
     estat: descarregat
-  - castell: "figura"
+  - castell: "pd4"
+    estat: descarregat
+  - castell: "2pd3"
     estat: descarregat
 notacioOriginal: "4/5ag net, 4/5aco net, vano de 4"
 ---

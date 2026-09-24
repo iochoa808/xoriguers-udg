@@ -7,7 +7,9 @@ cancelada: false
 castells:
   - castell: "2pd4"
     estat: descarregat
-  - castell: "figura"
+  - castell: "pd3"
+    estat: descarregat
+  - castell: "2pd2"
     estat: descarregat
 notacioOriginal: "2pd4 Vanod3"
 ---

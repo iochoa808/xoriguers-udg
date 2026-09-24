@@ -15,7 +15,9 @@ castells:
     estat: descarregat
   - castell: "3d6"
     estat: descarregat
-  - castell: "figura"
+  - castell: "pd4"
+    estat: descarregat
+  - castell: "2pd3"
     estat: descarregat
 notacioOriginal: "p/4, 4/6 id, 4/6, 2/6 aco carr., 3/6 aco, vano de 4, amb un pilar de 3 dels Emboirats de la UV"
 ---

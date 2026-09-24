@@ -4,6 +4,7 @@ import {
   normalitzaNom,
   notacioAmbEstat,
   parseCastell,
+  parseCastells,
   parseCsv,
   parseHistorial,
   punts,
@@ -56,10 +57,39 @@ describe('parseCastell', () => {
     expect(parseCastell('2/5id')).toMatchObject({ canonic: '2d5', estat: 'intent' });
   });
 
-  it('returns null for prose and marks special figures', () => {
+  it('returns null for prose', () => {
     expect(parseCastell('germanor')).toBeNull();
     expect(parseCastell('facultat')).toBeNull();
-    expect(parseCastell('vano').canonic).toBe('figura');
+  });
+
+  it('reads a figuereta without mistaking its f and g for folre and agulla', () => {
+    expect(parseCastell('2d5fig')).toMatchObject({ canonic: '2d5fig', pisos: 5, estat: 'descarregat' });
+    expect(parseCastell('2d6figuereta').canonic).toBe('2d6fig');
+    expect(parseCastell('2d5figc')).toMatchObject({ canonic: '2d5fig', estat: 'carregat' });
+  });
+
+  it('keeps the ors spelling that marks a non-traditional build', () => {
+    expect(parseCastell('6ors5')).toMatchObject({ canonic: '6ors5', pisos: 5, pilar: false });
+    // a traditional sis de cinc stays a separate castell
+    expect(parseCastell('6d5').canonic).toBe('6d5');
+  });
+});
+
+describe('parseCastells', () => {
+  it('raises a vano as the three pilars it is', () => {
+    expect(parseCastells('vano5').map((c) => c.canonic)).toEqual(['pd5', '2pd4']);
+    expect(parseCastells('van5').map((c) => c.canonic)).toEqual(['pd5', '2pd4']);
+    expect(parseCastells('vanod3').map((c) => c.canonic)).toEqual(['pd3', '2pd2']);
+  });
+
+  it('carries the vano\'s outcome to both pilars', () => {
+    expect(parseCastells('vano5c').map((c) => c.estat)).toEqual(['carregat', 'carregat']);
+    expect(parseCastells('vano5').every((c) => c.estat === 'descarregat')).toBe(true);
+  });
+
+  it('passes anything else through as a single castell', () => {
+    expect(parseCastells('4d7').map((c) => c.canonic)).toEqual(['4d7']);
+    expect(parseCastells('germanor')).toEqual([]);
   });
 });
 
@@ -92,6 +122,13 @@ describe('parseHistorial', () => {
 
   it('splits castells on commas as well as spaces', () => {
     expect(diades[2].castells.map((c) => c.canonic)).toEqual(['4d5a', '3d5']);
+  });
+
+  it('reads a vano written out in words', () => {
+    const [d] = parseHistorial(
+      'Data,Curs,Nom,Castells,CCCC,observacions\n29/11/2001,2001-2002,x,"p/4ps, 3/6aco, vano de 4",,'
+    );
+    expect(d.castells.map((c) => c.canonic)).toEqual(['pd4', '3d6', 'pd4', '2pd3']);
   });
 
   it('treats a lone "i" as the Catalan "and", not as an intent', () => {

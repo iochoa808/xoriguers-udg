@@ -11,7 +11,7 @@ castells:
     estat: descarregat
   - castell: "3d5a"
     estat: descarregat
-  - castell: "2d5fa"
+  - castell: "2d5fig"
     estat: descarregat
   - castell: "4pd3"
     estat: descarregat

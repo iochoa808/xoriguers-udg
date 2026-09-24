@@ -110,7 +110,6 @@ interface Recompte {
 const recomptes = new Map<string, Recompte>();
 for (const d of diades) {
   for (const c of d.castells) {
-    if (c.canonic === 'figura') continue;
     let r = recomptes.get(c.canonic);
     if (!r) {
       r = { canonic: c.canonic, pisos: c.pisos, pilar: c.pilar, tally: [0, 0, 0], primera: null };

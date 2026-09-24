@@ -11,7 +11,7 @@ castells:
     estat: descarregat
   - castell: "2d6"
     estat: descarregat
-  - castell: "figura"
+  - castell: "6ors5"
     estat: descarregat
   - castell: "pd4"
     estat: descarregat
