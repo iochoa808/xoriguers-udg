@@ -316,3 +316,21 @@ export function normalitzaNom(nom: string): string {
 }
 
 export const ES_FITA = /primer|millor|històr|histor|vuuu/i;
+
+/**
+ * How a castell is written down once you know how it went: 4d7 descarregat,
+ * 4d7c carregat, 4d7i intent. Built from the canonic form rather than from what
+ * was typed, so an outcome marker can never end up doubled.
+ */
+export function notacioAmbEstat(castell: { canonic: string; estat: Estat }): string {
+  if (castell.estat === 'carregat') return `${castell.canonic}c`;
+  if (castell.estat === 'intent') return `${castell.canonic}i`;
+  return castell.canonic;
+}
+
+/** descarregat beats carregat beats intent, for summarising a run of attempts. */
+export function millorEstat(estats: Estat[]): Estat {
+  if (estats.includes('descarregat')) return 'descarregat';
+  if (estats.includes('carregat')) return 'carregat';
+  return 'intent';
+}

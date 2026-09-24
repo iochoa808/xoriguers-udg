@@ -2,12 +2,14 @@
 import Base from '../../layouts/Base.astro';
 import { getCollection, getEntry, render } from 'astro:content';
 import { mediaUrl } from '../../lib/media';
-import { formatDateShort } from '../../lib/format';
+import { formatDateNumeric } from '../../lib/format';
 import { temporadaDe } from '../../lib/esdeveniment';
 import {
   ES_FITA,
   GAMMES,
+  millorEstat,
   normalitzaNom,
+  notacioAmbEstat,
   parseCastell,
   puntsDiada,
   punts,
@@ -58,7 +60,7 @@ const diades: Diada[] = passat.map((e) => ({
 
 const totalCastells = diades.reduce((n, d) => n + d.castells.length, 0);
 
-const dataText = (d: Diada) => formatDateShort(d.data);
+const dataText = (d: Diada) => formatDateNumeric(d.data);
 const clau = (d: Diada) => d.data.toISOString().slice(0, 10);
 const perData = (a: Diada, b: Diada) => clau(b).localeCompare(clau(a));
 
@@ -68,13 +70,20 @@ const temporades = [...new Set(diades.map((d) => d.temporada))].map((temporada) 
   const rows = diades.filter((d) => d.temporada === temporada).sort(perData);
   const castells = rows.flatMap((d) => d.castells);
   const sostre = castells.reduce((m, c) => Math.max(m, c.pilar ? 0 : c.pisos), 0);
+
+  // the tallest castells of the season, each labelled with the best it went:
+  // showing a bare 3d8f for something only ever carregat would overstate it
+  const alCim = castells.filter((c) => sostre > 0 && !c.pilar && c.pisos === sostre);
+  const destacats = [...new Set(alCim.map((c) => c.canonic))].map((canonic) => {
+    const estat = millorEstat(alCim.filter((c) => c.canonic === canonic).map((c) => c.estat));
+    return { text: notacioAmbEstat({ canonic, estat }), estat };
+  });
+
   return {
     temporada,
     any: inici(temporada),
     rows,
-    destacats: [
-      ...new Set(castells.filter((c) => sostre > 0 && !c.pilar && c.pisos === sostre).map((c) => c.canonic)),
-    ],
+    destacats,
     fita: rows.find((d) => d.observacio && ES_FITA.test(d.observacio)) ?? null,
     nCastells: castells.length,
   };
@@ -97,7 +106,6 @@ interface Recompte {
   pilar: boolean;
   tally: [number, number, number];
   primera: Diada | null;
-  ultima: Diada | null;
 }
 const recomptes = new Map<string, Recompte>();
 for (const d of diades) {
@@ -105,12 +113,11 @@ for (const d of diades) {
     if (c.canonic === 'figura') continue;
     let r = recomptes.get(c.canonic);
     if (!r) {
-      r = { canonic: c.canonic, pisos: c.pisos, pilar: c.pilar, tally: [0, 0, 0], primera: null, ultima: null };
+      r = { canonic: c.canonic, pisos: c.pisos, pilar: c.pilar, tally: [0, 0, 0], primera: null };
       recomptes.set(c.canonic, r);
     }
     r.tally[c.estat === 'descarregat' ? 0 : c.estat === 'carregat' ? 1 : 2]++;
     if (!r.primera || d.data < r.primera.data) r.primera = d;
-    if (!r.ultima || d.data > r.ultima.data) r.ultima = d;
   }
 }
 const assignats = new Set<string>();
@@ -139,7 +146,12 @@ const llista = [...diades].sort(perData).map((d) => {
     millor: d.castells.reduce((m, c) => Math.max(m, punts(c)), 0),
     recurrencia: recurrencia.get(clauNom) ?? 1,
     clauNom,
-    cerca: [d.nom, d.temporada, d.observacio, ...d.castells.map((c) => c.notacio)]
+    cerca: [
+      d.nom,
+      d.temporada,
+      d.observacio,
+      ...d.castells.flatMap((c) => [c.notacio, notacioAmbEstat(c)]),
+    ]
       .join(' ')
       .toLowerCase(),
   };
@@ -203,20 +215,20 @@ const pillClass: Record<string, string> = {
               <div class="season-n">{f.rows.length}</div>
               <div class="season-n">{f.nCastells}</div>
               <div class="season-tops">
-                {f.destacats.map((c) => <span class="c c-descarregat">{c}</span>)}
+                {f.destacats.map((c) => <span class={`c ${pillClass[c.estat]}`}>{c.text}</span>)}
                 {f.fita && <span class="fita">{f.fita.observacio}</span>}
               </div>
               <svg class="chev" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
             </div>
             <div class="season-body" hidden>
               {f.rows.map((d) => (
-                <div class="diada" data-cerca={[d.nom, d.observacio, ...d.castells.map((c) => c.notacio)].join(' ').toLowerCase()}>
+                <div class="diada" data-cerca={[d.nom, d.observacio, ...d.castells.flatMap((c) => [c.notacio, notacioAmbEstat(c)])].join(' ').toLowerCase()}>
                   <div class="diada-date">{dataText(d)}</div>
                   <div>
                     <div class="diada-name">{d.nom || '—'}</div>
                     {d.castells.length > 0 ? (
                       <div class="castells-row">
-                        {d.castells.map((c) => <span class={`c ${pillClass[c.estat]}`}>{c.notacio}</span>)}
+                        {d.castells.map((c) => <span class={`c ${pillClass[c.estat]}`}>{notacioAmbEstat(c)}</span>)}
                       </div>
                     ) : (
                       <div class="raw-note">{d.castellsText || 'sense castells registrats'}</div>
@@ -241,13 +253,12 @@ const pillClass: Record<string, string> = {
               <th>Castell</th>
               <th>Descarregats + carregats + intents</th>
               <th>Primer</th>
-              <th>Últim</th>
             </tr>
           </thead>
           <tbody>
             {gammes.map((g) => (
               <>
-                <tr class="gamma"><th colspan="4" scope="colgroup">{g.etiqueta}</th></tr>
+                <tr class="gamma"><th colspan="3" scope="colgroup">{g.etiqueta}</th></tr>
                 {g.membres.map((r) => (
                   <tr data-cerca={r.canonic.toLowerCase()}>
                     <td class="not">{r.canonic}</td>
@@ -257,7 +268,6 @@ const pillClass: Record<string, string> = {
                       {r.tally[2] > 0 && <span> + <span class="int">{r.tally[2]}i</span></span>}
                     </td>
                     <td class="when">{r.primera ? dataText(r.primera) : 's/d'}</td>
-                    <td class="when">{r.ultima ? dataText(r.ultima) : 's/d'}</td>
                   </tr>
                 ))}
               </>
@@ -307,7 +317,7 @@ const pillClass: Record<string, string> = {
                 <div class="diada-name">{x.diada.nom || '—'}</div>
                 {x.diada.castells.length > 0 ? (
                   <div class="castells-row">
-                    {x.diada.castells.map((c) => <span class={`c ${pillClass[c.estat]}`}>{c.notacio}</span>)}
+                    {x.diada.castells.map((c) => <span class={`c ${pillClass[c.estat]}`}>{notacioAmbEstat(c)}</span>)}
                   </div>
                 ) : (
                   <span class="raw-note">{x.diada.castellsText || 'sense registre'}</span>

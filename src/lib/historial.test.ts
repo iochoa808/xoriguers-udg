@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
+  millorEstat,
   normalitzaNom,
+  notacioAmbEstat,
   parseCastell,
   parseCsv,
   parseHistorial,
@@ -134,6 +136,28 @@ describe('puntuació', () => {
       'Data,Curs,Nom,Castells,CCCC,observacions\n14/05/2026,2025-2026,x,3d7 4d7 pd4,,'
     );
     expect(puntsDiada(diada)).toBe(415 + 395 + 30);
+  });
+});
+
+describe('notacioAmbEstat', () => {
+  it('writes the outcome, so it does not rest on colour alone', () => {
+    expect(notacioAmbEstat({ canonic: '4d7', estat: 'descarregat' })).toBe('4d7');
+    expect(notacioAmbEstat({ canonic: '4d7', estat: 'carregat' })).toBe('4d7c');
+    expect(notacioAmbEstat({ canonic: '4d7', estat: 'intent' })).toBe('4d7i');
+  });
+
+  it('never doubles a marker that the notation already carried', () => {
+    const llegit = parseCastell('2d7fc');
+    expect(llegit).toMatchObject({ canonic: '2d7f', estat: 'carregat' });
+    expect(notacioAmbEstat(llegit)).toBe('2d7fc');
+  });
+});
+
+describe('millorEstat', () => {
+  it('ranks descarregat over carregat over intent', () => {
+    expect(millorEstat(['intent', 'carregat', 'descarregat'])).toBe('descarregat');
+    expect(millorEstat(['intent', 'carregat'])).toBe('carregat');
+    expect(millorEstat(['intent'])).toBe('intent');
   });
 });
 
