@@ -9,7 +9,7 @@ castells:
     estat: descarregat
   - castell: "4d6"
     estat: descarregat
-  - castell: "2d6"
+  - castell: "2d6fig"
     estat: descarregat
   - castell: "3d6"
     estat: descarregat

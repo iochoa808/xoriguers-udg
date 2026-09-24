@@ -168,6 +168,15 @@ describe('puntuació', () => {
     expect(valorBase('3pd4')).toBe(90);
   });
 
+  it('scores a figuereta as the castell underneath it', () => {
+    expect(valorBase('2d6fig')).toBe(valorBase('2d6'));
+    expect(valorBase('2d5fig')).toBe(valorBase('2d5'));
+  });
+
+  it('gives a non-traditional build no invented value', () => {
+    expect(valorBase('6ors5')).toBe(0);
+  });
+
   it('adds up a whole diada', () => {
     const [diada] = parseHistorial(
       'Data,Curs,Nom,Castells,CCCC,observacions\n14/05/2026,2025-2026,x,3d7 4d7 pd4,,'

@@ -280,7 +280,6 @@ const PROVISIONAL: Record<string, number> = {
   '3d6a': 190,
   '3d6': 130,
   '4d6': 120,
-  '2d5fig': 120,
   '2d5': 110,
   '5d5': 95,
   '4d5a': 90,
@@ -302,6 +301,10 @@ export function valorBase(canonic: string): number {
     const unit = OFICIAL[m[2]] ?? PROVISIONAL[m[2]];
     if (unit) return unit * +m[1];
   }
+  // a figuereta is a flourish on a castell that already has a value. With no
+  // official value of its own it scores as the castell underneath, rather than
+  // as nothing or as a premium nobody has agreed on.
+  if (canonic.endsWith('fig')) return valorBase(canonic.slice(0, -3));
   return 0;
 }
 
