@@ -5,6 +5,8 @@
   --ink-soft: #56707d;
   --blue: #279cdb;
   --blue-deep: #1b7aae;
+  /* paler than --bg-deep, for tinted pills and chips sitting on a pale ground */
+  --blue-wash: #d3e9f7;
   --yellow: #f5b700;
   --yellow-ink: #8a5f00;
   --line: #d7e8f0;
@@ -75,6 +77,16 @@ a:hover {
 .pill-gold { background: var(--yellow-bg); color: var(--yellow-ink); }
 .pill-neutral { background: var(--neutral-bg); color: var(--neutral-ink); }
 .pill-danger { background: var(--danger-bg); color: var(--danger); }
+.pill-blue { background: var(--blue-wash); color: var(--blue-deep); }
+
+/*
+ * Colour carries meaning rather than decoration: blue marks structure and
+ * anything of the colla's own; yellow is kept for the one thing on a page that
+ * deserves the eye — the next actuació, a fita, the call to action. Pages set
+ * the accent themselves, blue down the left of a row in a list and across the
+ * top of a standalone card, because a scoped `border` shorthand would otherwise
+ * override a shared class.
+ */
 
 .badge {
   display: inline-flex;

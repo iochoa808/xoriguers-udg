@@ -212,6 +212,8 @@ const ogImageUrl = bannerImage ? new URL(bannerImage, Astro.site).toString() : u
       display: flex;
       align-items: flex-end;
       background: var(--blue-deep);
+      /* the one accent every page shares, tying the banners together */
+      border-bottom: 4px solid var(--yellow);
     }
     .page-hero-img {
       position: absolute;
@@ -224,7 +226,9 @@ const ogImageUrl = bannerImage ? new URL(bannerImage, Astro.site).toString() : u
     .page-hero-scrim {
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, rgba(22, 35, 44, 0) 40%, rgba(22, 35, 44, 0.75) 100%);
+      /* a darkened blue rather than neutral black, so the banner reads as part
+         of the same palette as everything below it */
+      background: linear-gradient(180deg, rgba(10, 45, 64, 0) 40%, rgba(10, 45, 64, 0.78) 100%);
     }
     .page-hero-title {
       position: relative;

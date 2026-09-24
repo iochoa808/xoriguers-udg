@@ -42,11 +42,12 @@ const { Content: IntroContent } = await render(capcalera!);
   .list { display: flex; flex-direction: column; gap: 14px; }
   .row {
     display: flex; gap: 20px; flex-wrap: wrap; align-items: center; text-decoration: none; color: var(--ink);
-    background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 16px 20px;
+    background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--blue);
+    border-radius: 8px; padding: 16px 20px; transition: background 0.14s, border-color 0.14s;
   }
-  .row:hover { border-color: var(--blue); }
+  .row:hover { border-color: var(--blue); background: var(--bg-deep); }
   .thumb { width: 64px; height: 64px; border-radius: 6px; object-fit: cover; flex: none; }
-  .date { font-size: 0.8125rem; color: var(--ink-soft); width: 140px; flex: none; }
+  .date { font-size: 0.8125rem; color: var(--blue-deep); font-weight: 600; width: 140px; flex: none; }
   .info h2 { font-size: 1.05rem; font-weight: 600; margin-bottom: 4px; }
   .meta { font-size: 0.875rem; color: var(--ink-soft); }
   .empty { color: var(--ink-soft); }

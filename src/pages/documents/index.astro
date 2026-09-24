@@ -48,10 +48,12 @@ const grups = categories.map((cat) => ({
   .list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
   .doc {
     display: flex; align-items: center; gap: 10px;
-    background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px;
+    background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--blue);
+    border-radius: 8px; padding: 12px 16px;
     text-decoration: none; color: var(--ink); font-size: 0.9375rem;
+    transition: background 0.14s, border-color 0.14s;
   }
-  .doc:hover { border-color: var(--blue); }
-  .doc svg { flex: none; color: var(--ink-soft); }
+  .doc:hover { border-color: var(--blue); background: var(--bg-deep); }
+  .doc svg { flex: none; color: var(--blue); }
   .empty { color: var(--ink-soft); }
 </style>

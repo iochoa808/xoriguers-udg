@@ -81,7 +81,8 @@ const productes = (await getCollection('productes')).sort((a, b) => a.data.ordre
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; }
   .producte {
     display: block; text-decoration: none; color: var(--ink);
-    background: #fff; border: 1px solid var(--line); border-radius: 8px; overflow: hidden;
+    background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--blue);
+    border-radius: 8px; overflow: hidden;
   }
   .producte:hover { border-color: var(--blue); }
   #f-roba:checked ~ .grid .producte:not([data-cat="Roba"]),
