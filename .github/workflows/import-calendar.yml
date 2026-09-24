@@ -2,8 +2,10 @@ name: Sync agenda with Google Calendar
 
 on:
   schedule:
-    # 04:00 UTC, so the agenda is up to date before anyone reads it
-    - cron: '0 4 * * *'
+    # Early morning, so the agenda is up to date before anyone reads it, and
+    # deliberately off the hour: GitHub queues every cron that lands on :00 at
+    # once and drops what it cannot get to, which is how the first run was lost.
+    - cron: '23 4 * * *'
   workflow_dispatch:
 
 permissions:

@@ -15,10 +15,14 @@ const heroTitol = inici?.data.titol ?? 'Fem castells. Fem universitat.';
 const heroCtaText = inici?.data.ctaText || 'Vine a assajar';
 
 const now = new Date();
+// an event happening today is still the next one up, so measure from midnight
+// rather than from this moment
+const avui = new Date();
+avui.setHours(0, 0, 0, 0);
 
 const agenda = await getCollection('agenda', ({ data }) => data.estat === 'publicat');
 const upcoming = agenda
-  .filter((e) => e.data.data >= now && !e.data.cancelada)
+  .filter((e) => e.data.data >= avui && !e.data.cancelada)
   .sort((a, b) => a.data.data.getTime() - b.data.data.getTime());
 const featured = upcoming.filter((e) => e.data.mostrarPortada);
 const properaActuacio = featured[0] ?? upcoming[0];
