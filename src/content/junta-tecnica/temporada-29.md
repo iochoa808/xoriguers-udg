@@ -1,18 +1,24 @@
 ---
 numeroTemporada: 29
 membres:
-  - carrec: "Cap de colla"
-    nom: "Anna"
-    cognom: "Serra"
-    malnom: "Serreta"
-  - carrec: "Sotscap"
-    nom: "Martí"
-    cognom: "Coll"
-  - carrec: "Graller"
-    nom: "Pol"
-    cognom: "Ferrer"
-    malnom: "Grall"
-  - carrec: "Timbalera"
-    nom: "Laia"
-    cognom: "Roig"
+  - carrec: Cap de colla
+    nom: Laia
+    cognom: Garcia
+    malnom: FLICK
+  - carrec: Sotscap
+    nom: Marcel
+    cognom: Balada
+    malnom: MARS
+  - carrec: Cap de Troncs
+    nom: Marcel
+    cognom: Balada
+    malnom: MARS
+  - carrec: Cap de Canalla
+    nom: Jordina
+    cognom: Canaleta
+    malnom: DINO
+  - carrec: Cap de Pinyes
+    nom: Tanit
+    cognom: Minobis
+    malnom: BOIG
 ---
