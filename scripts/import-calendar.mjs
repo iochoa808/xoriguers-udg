@@ -13,6 +13,7 @@ import { join } from 'node:path';
 
 const { parseIcal } = await import('../src/lib/ical.ts');
 const { classificaEsdeveniment } = await import('../src/lib/esdeveniment.ts');
+const { urlFeedIcal } = await import('../src/lib/calendari.ts');
 
 const DEST = 'src/content/agenda';
 const CONFIG = 'src/content/configuracio/general.md';
@@ -29,9 +30,9 @@ function urlDelFeed() {
   const config = readFileSync(CONFIG, 'utf8');
   const linia = config.match(/^googleCalendarEmbedUrl:\s*(.+)$/m);
   if (!linia) throw new Error(`No hi ha googleCalendarEmbedUrl a ${CONFIG}`);
-  const src = new URL(linia[1].trim().replace(/^["']|["']$/g, '')).searchParams.get('src');
-  if (!src) throw new Error("L'URL d'inserció no porta cap paràmetre src");
-  return `https://calendar.google.com/calendar/ical/${encodeURIComponent(src)}/public/basic.ics`;
+  const feed = urlFeedIcal(linia[1].trim().replace(/^["']|["']$/g, ''));
+  if (!feed) throw new Error("L'URL d'inserció no porta cap calendari");
+  return feed;
 }
 
 function slugify(text) {
