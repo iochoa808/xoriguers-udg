@@ -24,7 +24,7 @@ const agenda = defineCollection({
     cartell: z.string().optional(),
     collesParticipants: z.array(z.string()).default([]),
     mostrarPortada: z.boolean().default(false),
-    estat: z.enum(['esborrany', 'revisio', 'publicat']).default('esborrany'),
+    estat: z.enum(['esborrany', 'revisio', 'publicat']).default('publicat'),
     cancelada: z.boolean().default(false),
     castells: z.array(castellFet).default([]),
     /** Milestone notes from the registre: "Primer 5d7 de la historia". */
@@ -44,7 +44,7 @@ const noticies = defineCollection({
     data: z.coerce.date(),
     resum: z.string(),
     imatge: z.string().optional(),
-    estat: z.enum(['esborrany', 'revisio', 'publicat']).default('esborrany'),
+    estat: z.enum(['esborrany', 'revisio', 'publicat']).default('publicat'),
   }),
 });
 
@@ -55,7 +55,7 @@ const galeria = defineCollection({
     data: z.coerce.date(),
     portada: z.string().optional(),
     fotos: z.array(z.string()).default([]),
-    estat: z.enum(['esborrany', 'revisio', 'publicat']).default('esborrany'),
+    estat: z.enum(['esborrany', 'revisio', 'publicat']).default('publicat'),
   }),
 });
 

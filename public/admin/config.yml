@@ -26,7 +26,9 @@ site_url: https://iochoa808.github.io
 # this when the CMS is actually opened from localhost.
 local_backend: true
 
-publish_mode: editorial_workflow
+# No editorial_workflow: one or two people run this site, so Save commits
+# straight to main and the deploy takes it live. Nothing to mark ready, nothing
+# to review, no pull request in between.
 
 media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
@@ -78,7 +80,7 @@ collections:
         name: "estat"
         widget: "select"
         options: ["esborrany", "revisio", "publicat"]
-        default: "esborrany"
+        default: "publicat"
       - { label: "Cancel·lada", name: "cancelada", widget: "boolean", default: false }
       - { label: "Descripció", name: "body", widget: "markdown" }
       - label: "Castells"
@@ -120,7 +122,7 @@ collections:
         name: "estat"
         widget: "select"
         options: ["esborrany", "revisio", "publicat"]
-        default: "esborrany"
+        default: "publicat"
       - { label: "Cos", name: "body", widget: "markdown" }
 
   - name: "galeria"
@@ -148,7 +150,7 @@ collections:
         name: "estat"
         widget: "select"
         options: ["esborrany", "revisio", "publicat"]
-        default: "esborrany"
+        default: "publicat"
 
   - name: "pagines"
     label: "Pàgines"
