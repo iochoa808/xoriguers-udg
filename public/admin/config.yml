@@ -38,6 +38,29 @@ collections:
     create: true
     identifier_field: "nom"
     slug: "{{fields.data}}-{{fields.nom}}"
+    # Decap only infers sortable fields called title/date/author/description, so
+    # with 280-odd diades and Catalan field names the list arrived unsorted.
+    summary: "{{data}} · {{nom}}"
+    sortable_fields: ["data", "nom", "tipus"]
+    view_groups:
+      - label: "Any"
+        field: "data"
+        pattern: '\d{4}'
+      - label: "Tipus"
+        field: "tipus"
+    view_filters:
+      - label: "Actuacions"
+        field: "tipus"
+        pattern: "Actuacio"
+      - label: "Diades"
+        field: "tipus"
+        pattern: "Diada"
+      - label: "Assajos"
+        field: "tipus"
+        pattern: "Assaig"
+      - label: "Amb observació"
+        field: "observacio"
+        pattern: "."
     fields:
       - { label: "Nom", name: "nom", widget: "string" }
       - { label: "Data", name: "data", widget: "date" }
@@ -82,6 +105,12 @@ collections:
     create: true
     identifier_field: "titol"
     slug: "{{fields.titol}}"
+    summary: "{{data}} · {{titol}}"
+    sortable_fields: ["data", "titol"]
+    view_groups:
+      - label: "Any"
+        field: "data"
+        pattern: '\d{4}'
     fields:
       - { label: "Títol", name: "titol", widget: "string" }
       - { label: "Data", name: "data", widget: "date" }
@@ -100,6 +129,12 @@ collections:
     create: true
     identifier_field: "nom"
     slug: "{{fields.nom}}"
+    summary: "{{data}} · {{nom}}"
+    sortable_fields: ["data", "nom"]
+    view_groups:
+      - label: "Any"
+        field: "data"
+        pattern: '\d{4}'
     fields:
       - { label: "Nom", name: "nom", widget: "string" }
       - { label: "Data", name: "data", widget: "date" }
