@@ -7,10 +7,10 @@ import { temporadaDe } from '../../lib/esdeveniment';
 import {
   ES_FITA,
   GAMMES,
+  llegeixCastellsRegistrats,
   millorEstat,
   normalitzaNom,
   notacioAmbEstat,
-  parseCastell,
   puntsDiada,
   punts,
   valorBase,
@@ -18,6 +18,7 @@ import {
 } from '../../lib/historial';
 
 interface Diada {
+  id: string;
   data: Date;
   temporada: string;
   nom: string;
@@ -45,16 +46,11 @@ const passat = await getCollection(
 );
 
 const diades: Diada[] = passat.map((e) => ({
+  id: e.id,
   data: e.data.data,
   temporada: temporadaDe(e.data.data),
   nom: e.data.nom,
-  castells: e.data.castells.map((c) => {
-    const llegit = parseCastell(c.castell);
-    // the recorded estat wins: it is its own field, not something to re-derive
-    return llegit
-      ? { ...llegit, estat: c.estat }
-      : { canonic: c.castell, notacio: c.castell, pisos: 0, pilar: false, estat: c.estat };
-  }),
+  castells: llegeixCastellsRegistrats(e.data.castells),
   castellsText: e.data.notacioOriginal ?? '',
   observacio: e.data.observacio ?? '',
 }));
@@ -209,7 +205,7 @@ const pillClass: Record<string, string> = {
             </div>
           </div>
         ) : (
-          <div class={`season${f.temporada === temporadaActual ? ' actual' : ''}`} data-temporada={f.temporada}>
+          <div id={`t-${f.temporada}`} class={`season${f.temporada === temporadaActual ? ' actual' : ''}`} data-temporada={f.temporada}>
             <div class="season-head cols-temporades" role="button" tabindex="0" aria-expanded="false">
               <div class="season-year">{f.temporada}</div>
               <div class="season-n">{f.rows.length}</div>
@@ -222,7 +218,7 @@ const pillClass: Record<string, string> = {
             </div>
             <div class="season-body" hidden>
               {f.rows.map((d) => (
-                <div class="diada" data-cerca={[d.nom, d.observacio, ...d.castells.flatMap((c) => [c.notacio, notacioAmbEstat(c)])].join(' ').toLowerCase()}>
+                <a class="diada" href={`${base}agenda/${d.id}`} data-cerca={[d.nom, d.observacio, ...d.castells.flatMap((c) => [c.notacio, notacioAmbEstat(c)])].join(' ').toLowerCase()}>
                   <div class="diada-date">{dataText(d)}</div>
                   <div>
                     <div class="diada-name">{d.nom || '—'}</div>
@@ -237,7 +233,7 @@ const pillClass: Record<string, string> = {
                       <div class={`obs${ES_FITA.test(d.observacio) ? ' is-fita' : ''}`}>{d.observacio}</div>
                     )}
                   </div>
-                </div>
+                </a>
               ))}
             </div>
           </div>
@@ -310,7 +306,7 @@ const pillClass: Record<string, string> = {
             <div class="grouphead" hidden>
               {x.diada.nom} <span>· {x.recurrencia} {x.recurrencia === 1 ? 'vegada' : 'edicions'}</span>
             </div>
-            <div class="drow cols-diades">
+            <a class="drow cols-diades" href={`${base}agenda/${x.diada.id}`}>
               <div class="diada-date">{dataText(x.diada)}</div>
               <div class="diada-date">{x.diada.temporada}</div>
               <div>
@@ -327,7 +323,7 @@ const pillClass: Record<string, string> = {
                 )}
               </div>
               <div class="pts" data-pts={x.punts}>{x.punts > 0 ? x.punts.toLocaleString('ca-ES') : ''}</div>
-            </div>
+            </a>
           </div>
         ))}
       </div>
@@ -484,6 +480,18 @@ const pillClass: Record<string, string> = {
 
   cerca.addEventListener('input', filter);
   reorder();
+
+  // arriving from a diada's page via #t-2025-2026 should open that season
+  function obreDelHash() {
+    if (!location.hash.startsWith('#t-')) return;
+    const season = document.querySelector(location.hash) as HTMLElement | null;
+    const head = season?.querySelector('.season-head') as HTMLElement | null;
+    if (!head || season!.classList.contains('open')) return;
+    toggleSeason(head);
+    season!.scrollIntoView({ block: 'center' });
+  }
+  window.addEventListener('hashchange', obreDelHash);
+  obreDelHash();
 </script>
 
 <style>
@@ -581,7 +589,14 @@ const pillClass: Record<string, string> = {
   .season.buida .season-year { color: var(--ink-faint, #8aa3ae); }
   .season-body { padding: 2px 4px 18px; }
 
-  .diada { display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: 16px; padding: 8px 0; border-top: 1px solid var(--line); }
+  .diada {
+    display: grid; grid-template-columns: 7rem minmax(0, 1fr); gap: 16px; padding: 8px 6px;
+    border-top: 1px solid var(--line); text-decoration: none; color: var(--ink);
+    border-radius: 4px; transition: background 0.12s;
+  }
+  .diada:hover { background: var(--blue-wash); }
+  .diada:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+  .diada:hover .diada-name { color: var(--blue-deep); }
   .diada-date {
     font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.75rem;
     color: var(--ink-soft); white-space: nowrap;
@@ -618,8 +633,14 @@ const pillClass: Record<string, string> = {
   }
 
   /* ---------- diades ---------- */
-  .drow { display: grid; gap: 16px; align-items: baseline; padding: 10px 4px; border-bottom: 1px solid var(--line); }
-  .drow:hover { background: var(--bg-deep); }
+  .drow {
+    display: grid; gap: 16px; align-items: baseline; padding: 10px 4px;
+    border-bottom: 1px solid var(--line); text-decoration: none; color: var(--ink);
+    transition: background 0.12s;
+  }
+  .drow:hover { background: var(--blue-wash); }
+  .drow:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+  .drow:hover .diada-name { color: var(--blue-deep); }
   .pts {
     font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.8125rem; color: var(--ink-soft);
     text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap;

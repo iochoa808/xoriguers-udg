@@ -3,7 +3,8 @@ import Base from '../../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
 import { mediaUrl } from '../../lib/media';
 import { formatDate } from '../../lib/format';
-import { detallsEsdeveniment, llocComplet } from '../../lib/esdeveniment';
+import { detallsEsdeveniment, llocComplet, temporadaDe } from '../../lib/esdeveniment';
+import { llegeixCastellsRegistrats, notacioAmbEstat } from '../../lib/historial';
 
 export async function getStaticPaths() {
   const agenda = await getCollection('agenda', ({ data }) => data.estat === 'publicat');
@@ -26,16 +27,39 @@ const descripcio = [formatDate(entry.data.data), llocComplet(entry.data.lloc, en
 const detalls = [formatDate(entry.data.data), detallsEsdeveniment(entry.data.hora, entry.data.lloc, entry.data.poblacio)]
   .filter(Boolean)
   .join(' · ');
+
+const temporada = temporadaDe(entry.data.data);
+const castells = llegeixCastellsRegistrats(entry.data.castells);
+
+// a past diada belongs to the historial; the agenda only lists what is still to
+// come, so sending someone back there would be a dead end
+const avui = new Date();
+avui.setHours(0, 0, 0, 0);
+const jaPassada = entry.data.data < avui;
+const tornarA = jaPassada ? `${base}castells#t-${temporada}` : `${base}agenda`;
+const tornarText = jaPassada ? '← Historial de castells' : '← Agenda';
 ---
 <Base title={entry.data.nom} description={descripcio} heroImage={mediaUrl(base, entry.data.cartell)} showHeader={false}>
   <div class="wrap">
-    <a class="back mono" href={`${base}agenda`}>← Agenda</a>
+    <a class="back mono" href={tornarA}>{tornarText}</a>
     <div class="eyebrow-row">
       <div class="eyebrow">{entry.data.tipus}</div>
       {entry.data.cancelada && <span class="pill pill-danger">Cancel·lada</span>}
     </div>
     <h1 class="display">{entry.data.nom}</h1>
     <div class="meta">{detalls}</div>
+    <div class="facts">
+      <a class="fact" href={`${base}castells#t-${temporada}`}>
+        <span class="fact-label mono">Temporada</span>
+        <span class="fact-value mono">{temporada}</span>
+      </a>
+      {castells.length > 0 && (
+        <div class="fact">
+          <span class="fact-label mono">Castells</span>
+          <span class="fact-value mono">{castells.length}</span>
+        </div>
+      )}
+    </div>
     {mediaUrl(base, entry.data.cartell) && <img class="cartell" src={mediaUrl(base, entry.data.cartell)} alt="" />}
     {entry.data.collesParticipants.length > 0 && (
       <div class="chips">
@@ -50,14 +74,22 @@ const detalls = [formatDate(entry.data.data), detallsEsdeveniment(entry.data.hor
       <div class="castells">
         <div class="eyebrow">Castells fets</div>
         <div class="castells-row">
-          {entry.data.castells.map((c) => (
+          {entry.data.castells.map((c, i) => (
             <div class="castell-tile">
-              <div class="notation display">{c.castell}</div>
+              {mediaUrl(base, c.foto) && (
+                <img class="castell-foto" src={mediaUrl(base, c.foto)} alt={c.castell} loading="lazy" />
+              )}
+              <div class="notation display">{notacioAmbEstat(castells[i])}</div>
               <span class={`pill ${pillClass[c.estat]}`}>{pillLabel[c.estat]}</span>
               {c.ronda && <div class="ronda mono">Ronda {c.ronda}</div>}
             </div>
           ))}
         </div>
+        {entry.data.notacioOriginal && (
+          <p class="registre">
+            Tal com es va escriure al registre: <span class="mono">{entry.data.notacioOriginal}</span>
+          </p>
+        )}
       </div>
     )}
   </div>
@@ -79,7 +111,21 @@ const detalls = [formatDate(entry.data.data), detallsEsdeveniment(entry.data.hor
   }
   .castells { margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--line); }
   .castells-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 14px; margin-top: 14px; }
+  .facts { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+  .fact {
+    display: flex; flex-direction: column; gap: 2px;
+    background: var(--bg-deep); border-radius: 6px; padding: 8px 14px;
+    text-decoration: none; color: var(--ink);
+  }
+  a.fact:hover { background: var(--blue-wash); }
+  .fact-label { font-size: 0.625rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
+  .fact-value { font-size: 0.9375rem; font-weight: 600; color: var(--blue-deep); }
   .castell-tile { background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--blue); border-radius: 8px; padding: 16px; text-align: center; }
+  .castell-foto {
+    width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 6px;
+    display: block; margin: -4px 0 12px;
+  }
+  .registre { margin: 18px 0 0; font-size: 0.8125rem; color: var(--ink-soft); }
   .notation { font-size: 2rem; line-height: 1; }
   .ronda { font-size: 0.6875rem; color: var(--ink-soft); margin-top: 8px; }
 </style>

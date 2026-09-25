@@ -122,6 +122,22 @@ export function parseCastell(token: string): CastellFet | null {
 }
 
 /**
+ * Turns the castells recorded on an agenda entry into full records. The stored
+ * estat wins over anything the notation implies: it is its own field, chosen by
+ * whoever wrote the diada up.
+ */
+export function llegeixCastellsRegistrats(
+  registrats: readonly { castell: string; estat: Estat }[]
+): CastellFet[] {
+  return registrats.map((c) => {
+    const llegit = parseCastell(c.castell);
+    return llegit
+      ? { ...llegit, estat: c.estat }
+      : { canonic: c.castell, notacio: c.castell, pisos: 0, pilar: false, estat: c.estat };
+  });
+}
+
+/**
  * A token can stand for more than one castell: a vano is three pilars raised
  * together, one de N flanked by two de N-1, so "vano de 5" is pd5 and 2pd4.
  */
