@@ -1,14 +1,20 @@
 ---
 numeroTemporada: 29
 membres:
-  - carrec: "Presidenta"
-    nom: "Marta"
-    cognom: "Puig"
-  - carrec: "Secretari"
-    nom: "Jordi"
-    cognom: "Vila"
-    malnom: "Viles"
-  - carrec: "Tresorer"
-    nom: "Marc"
-    cognom: "Riera"
+  - carrec: Presidenta
+    nom: Alexandra
+    cognom: Banegas
+    malnom: TERROR
+  - carrec: Secretari
+    nom: Judit
+    cognom: Oriol
+    malnom: ENGRUNA
+  - carrec: Tresorer
+    nom: Narcís
+    cognom: Campasol
+    malnom: HAMMER
+  - carrec: Vicepresident
+    nom: Pol
+    cognom: Barceló
+    malnom: FAFA
 ---
