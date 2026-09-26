@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 import { mediaUrl } from '../lib/media';
 import { isRealUrl } from '../lib/config';
 import { formatDateShort, formatDayMonth } from '../lib/format';
@@ -13,6 +13,10 @@ const instagramHandle = instagramUrl?.replace(/\/$/, '').split('/').pop();
 const inici = await getEntry('pagines', 'inici');
 const heroTitol = inici?.data.titol ?? 'Fem castells. Fem universitat.';
 const heroCtaText = inici?.data.ctaText || 'Vine a assajar';
+// the homepage's own body text is the presentation in the left column
+const { Content: Presentacio } = await render(inici!);
+const presentacioTitol = inici?.data.presentacioTitol;
+const properesTitol = inici?.data.properesTitol || 'Pròximes actuacions';
 
 const now = new Date();
 // an event happening today is still the next one up, so measure from midnight
@@ -24,8 +28,10 @@ const agenda = await getCollection('agenda', ({ data }) => data.estat === 'publi
 const upcoming = agenda
   .filter((e) => e.data.data >= avui && !e.data.cancelada)
   .sort((a, b) => a.data.data.getTime() - b.data.data.getTime());
+// "Mostrar a portada" still means "put this one first", it just no longer has to
+// be the only one shown
 const featured = upcoming.filter((e) => e.data.mostrarPortada);
-const properaActuacio = featured[0] ?? upcoming[0];
+const properes = [...featured, ...upcoming.filter((e) => !e.data.mostrarPortada)].slice(0, 3);
 
 const pastAmbCastells = agenda
   .filter((e) => e.data.data <= now && e.data.castells.length > 0)
@@ -59,25 +65,42 @@ const heroImatge = mediaUrl(base, inici?.data.imatge);
   </div>
 
   <div class="section">
-    {properaActuacio && (
-      <div class="card-row">
-        {mediaUrl(base, properaActuacio.data.cartell) && (
-          <img class="card-cartell" src={mediaUrl(base, properaActuacio.data.cartell)} alt="" />
-        )}
-        <div>
-          <div class="eyebrow">Propera actuació</div>
-          <div class="card-date display">{formatDayMonth(properaActuacio.data.data)}</div>
+    <div class="intro">
+      <div class="presentacio">
+        {presentacioTitol && <div class="eyebrow">{presentacioTitol}</div>}
+        <div class="presentacio-text">
+          <Presentacio />
         </div>
-        <div style="flex:1; min-width:180px;">
-          <h2>{properaActuacio.data.nom}</h2>
-          <div class="meta">{detallsEsdeveniment(properaActuacio.data.hora, properaActuacio.data.lloc, properaActuacio.data.poblacio)}</div>
-        </div>
-        <a class="card-link" href={`${base}agenda`}>
-          Veure agenda
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
-        </a>
       </div>
-    )}
+
+      <div class="properes">
+        <div class="properes-head">
+          <div class="eyebrow">{properesTitol}</div>
+          <a class="card-link" href={`${base}agenda`}>
+            Veure agenda
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+        {properes.length > 0 ? (
+          properes.map((e, i) => (
+            <a class={`properes-row${i === 0 ? ' primera' : ''}`} href={`${base}agenda/${e.id}`}>
+              <div class="properes-date display">{formatDayMonth(e.data.data)}</div>
+              <div class="properes-info">
+                <h2>{e.data.nom}</h2>
+                {detallsEsdeveniment(e.data.hora, e.data.lloc, e.data.poblacio) && (
+                  <div class="meta">{detallsEsdeveniment(e.data.hora, e.data.lloc, e.data.poblacio)}</div>
+                )}
+              </div>
+            </a>
+          ))
+        ) : (
+          <p class="properes-buit">
+            Ara mateix no hi ha cap actuació programada. Les que ja s'han fet són a l'
+            <a href={`${base}castells`}>historial de castells</a>.
+          </p>
+        )}
+      </div>
+    </div>
 
     {ultimsCastells.length > 0 && (
       <>
@@ -161,6 +184,45 @@ const heroImatge = mediaUrl(base, inici?.data.imatge);
   }
   .hero-img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .section { padding: 40px 28px 0; max-width: 1180px; margin: 0 auto; }
+  /* who we are on the left, what is coming up on the right */
+  .intro {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr;
+    gap: 40px;
+    align-items: start;
+    margin: 8px 0 36px;
+  }
+  .presentacio-text {
+    margin-top: 10px;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--ink-soft);
+    max-width: 58ch;
+  }
+  .presentacio-text :global(p) { margin: 0 0 14px; }
+  .presentacio-text :global(p:last-child) { margin-bottom: 0; }
+
+  .properes-head {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    padding-bottom: 8px; border-bottom: 2px solid var(--blue);
+  }
+  .properes-row {
+    display: flex; gap: 16px; align-items: baseline;
+    padding: 14px 4px; border-bottom: 1px solid var(--line);
+    text-decoration: none; color: var(--ink);
+    transition: background 0.14s;
+  }
+  .properes-row:hover { background: var(--blue-wash); }
+  .properes-row.primera { border-left: 4px solid var(--yellow); background: var(--yellow-bg); padding-left: 12px; }
+  .properes-row.primera:hover { background: var(--yellow-bg); filter: brightness(0.98); }
+  .properes-date {
+    font-size: 1.05rem; color: var(--blue-deep); white-space: nowrap;
+    width: 5.5rem; flex: none;
+  }
+  .properes-info { min-width: 0; }
+  .properes-info h2 { font-size: 1rem; font-weight: 600; }
+  .properes-buit { font-size: 0.9375rem; color: var(--ink-soft); margin: 14px 0 0; }
+
   .card-row {
     display: flex; gap: 24px; align-items: center; justify-content: space-between; flex-wrap: wrap;
     background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--blue); border-radius: 8px; padding: 20px 24px; margin: 20px 0;
@@ -180,6 +242,9 @@ const heroImatge = mediaUrl(base, inici?.data.imatge);
   .castells-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin: 14px 0 32px; }
   .castell-tile { background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--blue); border-radius: 8px; padding: 18px; text-align: center; }
   .notation { font-size: 2.8rem; line-height: 1; }
+  @media (max-width: 860px) {
+    .intro { grid-template-columns: 1fr; gap: 28px; }
+  }
   @media (max-width: 720px) {
     .hero { grid-template-columns: 1fr; min-height: 0; }
     .hero-photo { aspect-ratio: 16/9; }

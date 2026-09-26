@@ -75,6 +75,9 @@ const pagines = defineCollection({
     titol: z.string().optional(),
     imatge: z.string().optional(),
     ctaText: z.string().optional(),
+    /** Headings on the homepage's two columns, both editable. */
+    presentacioTitol: z.preprocess(emptyToUndefined, z.string().optional()),
+    properesTitol: z.preprocess(emptyToUndefined, z.string().optional()),
     assajosHorari: z.string().optional(),
     assajosLloc: z.string().optional(),
     assajos: z.array(assaig).default([]),

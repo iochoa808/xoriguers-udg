@@ -162,6 +162,9 @@ collections:
           - { label: "Titular principal", name: "titol", widget: "string", hint: "Es mostra en majúscules a la portada. No cal salt de línia, s'ajusta sol." }
           - { label: "Text del botó", name: "ctaText", widget: "string", required: false, hint: "Per defecte: 'Vine a assajar'" }
           - { label: "Fotografia de portada", name: "imatge", widget: "image", required: false, hint: "Si no se'n puja cap, es mostra un patró decoratiu." }
+          - { label: "Títol de la presentació", name: "presentacioTitol", widget: "string", required: false, hint: "Petit títol a sobre del text de presentació, a l'esquerra. Es pot deixar buit." }
+          - { label: "Text de presentació", name: "body", widget: "markdown", required: false, hint: "El text que explica qui som. Surt a l'esquerra, al costat de les pròximes actuacions." }
+          - { label: "Títol de les pròximes actuacions", name: "properesTitol", widget: "string", required: false, hint: "Per defecte: 'Pròximes actuacions'. Surt a la dreta del text de presentació." }
       - name: "la_colla"
         label: "La colla"
         file: "src/content/pagines/la-colla.md"
