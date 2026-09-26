@@ -1,5 +1,5 @@
 ---
-titol: "Fem castells. Fem universitat."
-ctaText: "Vine a assajar"
-imatge: "/images/uploads/images.jpg"
+titol: "Xoriguers: més que castells"
+ctaText: Vine a assaig!
+imatge: /images/uploads/images.jpg
 ---
