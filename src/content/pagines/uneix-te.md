@@ -5,10 +5,10 @@ assajos:
     clau: castellers
     text: Dimarts i dijous, 12:30–14:30.
     ubicacio: 41.964444,2.829417
-  - titol: Músics
+  - titol: XoriMúsics
     clau: musics
     text: Dimarts i dijous, 19:30.
-    ubicacio: "Universitat de Girona: Mòduls Centrals"
+    ubicacio: 41°57'47.1"N 2°49'45.8"E
   - titol: També assagem els dijous vespre
     clau: vespre
     text: Al local dels Marrecs de Salt.
