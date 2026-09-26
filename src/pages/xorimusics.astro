@@ -11,6 +11,9 @@ const uneixTe = await getEntry('pagines', 'uneix-te');
 const base = import.meta.env.BASE_URL;
 const imatge = mediaUrl(base, pagina?.data.imatge);
 const email = isRealUrl(pagina?.data.contacteEmail) ? pagina!.data.contacteEmail : undefined;
+
+// the músics block on Uneix-te is the one source for when and where they assagen
+const assaigMusics = uneixTe?.data.assajos?.find((a) => a.clau === 'musics');
 ---
 <Base title={pagina!.data.titol ?? 'Xorimúsics'} heroImage={imatge}>
   <div class="wrap">
@@ -19,10 +22,16 @@ const email = isRealUrl(pagina?.data.contacteEmail) ? pagina!.data.contacteEmail
     </div>
 
     <div class="grid">
-      {isRealUrl(uneixTe?.data.practicaMusicsHorari) && (
+      {assaigMusics?.text && (
         <div class="card">
           <div class="eyebrow">Assaig</div>
-          <p>{uneixTe!.data.practicaMusicsHorari}</p>
+          <p>{assaigMusics.text}</p>
+        </div>
+      )}
+      {assaigMusics?.ubicacio && (
+        <div class="card">
+          <div class="eyebrow">On</div>
+          <p>{assaigMusics.ubicacio}</p>
         </div>
       )}
       {email && (
@@ -33,10 +42,10 @@ const email = isRealUrl(pagina?.data.contacteEmail) ? pagina!.data.contacteEmail
       )}
     </div>
 
-    {isRealUrl(uneixTe?.data.practicaUbicacio) && (
+    {assaigMusics?.ubicacio && (
       <div class="map-section">
         <div class="eyebrow">On assagem</div>
-        <MapEmbed ubicacio={uneixTe!.data.practicaUbicacio!} label="Ubicació dels assajos" />
+        <MapEmbed ubicacio={assaigMusics.ubicacio} label="Ubicació dels assajos dels músics" />
       </div>
     )}
   </div>

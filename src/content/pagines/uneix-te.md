@@ -1,9 +1,17 @@
 ---
-titol: "Uneix-te als Xoriguers"
-practicaCastellersHorari: "Dimarts i dijous, 12:30–14:30"
-practicaMusicsHorari: "Dimarts i dijous, 19:30"
-practicaUbicacio: "41.964444,2.829417"
+titol: Uneix-te als Xoriguers
+assajos:
+  - titol: Castellers
+    clau: castellers
+    text: Dimarts i dijous, 12:30–14:30.
+    ubicacio: 41.964444,2.829417
+  - titol: Músics
+    clau: musics
+    text: Dimarts i dijous, 19:30.
+    ubicacio: "Universitat de Girona: Mòduls Centrals"
+  - titol: També assagem els dijous vespre
+    clau: vespre
+    text: Al local dels Marrecs de Salt.
+    ubicacio: Marrecs de Salt
 ---
-No cal experiència ni forma física prèvia: cada temporada comencem de zero amb gent nova. Vine un dia d'assaig, mira com funciona la pinya, i si t'agrada, ja ets un xoriguer més. Portem la colla entre tots — a la pinya, als vents i tocant a la gralla o el tabal.
-
-Escriu-nos o passa't per un assaig quan vulguis, no cal avisar abans.
+No cal experiència ni forma física prèvia: cada temporada comencem de zero amb gent nova. Vine un dia a l'assaig, a formar part de la pinya o a tocar amb els nostres músics, i si t'agrada, ja ets un xoriguer més. Escriu-nos o passa't per un assaig quan vulguis, no cal avisar abans.

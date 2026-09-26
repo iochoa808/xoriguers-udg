@@ -179,9 +179,18 @@ collections:
         fields:
           - { label: "Títol", name: "titol", widget: "string" }
           - { label: "Text de la crida", name: "body", widget: "markdown", hint: "Els horaris d'assaig i el contacte es mostren automàticament des de la pàgina 'La colla'." }
-          - { label: "Horari assajos castellers", name: "practicaCastellersHorari", widget: "string", required: false }
-          - { label: "Horari assajos músics", name: "practicaMusicsHorari", widget: "string", required: false }
-          - { label: "Ubicació dels assajos", name: "practicaUbicacio", widget: "string", required: false, hint: "Coordenades 'latitud,longitud' o adreça, per mostrar el mapa." }
+          - label: "Assajos"
+            name: "assajos"
+            widget: "list"
+            required: false
+            label_singular: "Assaig"
+            summary: "{{fields.titol}} · {{fields.ubicacio}}"
+            hint: "Cada bloc surt a la pàgina amb el text a l'esquerra i el seu mapa a la dreta, en aquest ordre."
+            fields:
+              - { label: "Títol", name: "titol", widget: "string" }
+              - { label: "Text", name: "text", widget: "text", required: false, hint: "Curt: quan s'assaja." }
+              - { label: "Ubicació", name: "ubicacio", widget: "string", required: false, hint: "Coordenades 'latitud,longitud' o el nom del lloc. És el que busca el mapa." }
+              - { label: "Clau", name: "clau", widget: "string", required: false, hint: "Només si una altra pàgina ha d'apuntar aquí. 'musics' és el que fa servir la pàgina dels Xorimúsics." }
           - { label: "Fotografia", name: "imatge", widget: "image", required: false }
       - name: "merchandising"
         label: "Merchandising"

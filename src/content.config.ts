@@ -59,6 +59,16 @@ const galeria = defineCollection({
   }),
 });
 
+/** One block on Uneix-te: who assaja, when, and where, with its own map. */
+const assaig = z.object({
+  titol: z.string(),
+  text: z.preprocess(emptyToUndefined, z.string().optional()),
+  /** Coordinates "lat,long" or a place name — either works as a map query. */
+  ubicacio: z.preprocess(emptyToUndefined, z.string().optional()),
+  /** Lets another page point at one block, e.g. Xorimúsics at "musics". */
+  clau: z.preprocess(emptyToUndefined, z.string().optional()),
+});
+
 const pagines = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/pagines' }),
   schema: z.object({
@@ -67,9 +77,7 @@ const pagines = defineCollection({
     ctaText: z.string().optional(),
     assajosHorari: z.string().optional(),
     assajosLloc: z.string().optional(),
-    practicaCastellersHorari: z.string().optional(),
-    practicaMusicsHorari: z.string().optional(),
-    practicaUbicacio: z.string().optional(),
+    assajos: z.array(assaig).default([]),
     contacteEmail: z.string().optional(),
     contacteInstagram: z.string().optional(),
   }),

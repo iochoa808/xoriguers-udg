@@ -2,14 +2,17 @@
 interface Props {
   ubicacio: string;
   label?: string;
+  /** Narrow columns need a taller map than a full-width one. */
+  relacio?: string;
 }
 
-const { ubicacio, label = 'Ubicació' } = Astro.props;
+const { ubicacio, label = 'Ubicació', relacio = '16 / 9' } = Astro.props;
 const query = encodeURIComponent(ubicacio);
 ---
 <div class="map-embed">
   <iframe
     class="map"
+    style={`aspect-ratio: ${relacio}`}
     src={`https://www.google.com/maps?q=${query}&output=embed`}
     title={label}
     loading="lazy"
@@ -21,6 +24,6 @@ const query = encodeURIComponent(ubicacio);
 </div>
 
 <style>
-  .map { width: 100%; aspect-ratio: 16/9; border: 1px solid var(--line); border-radius: 8px; display: block; }
+  .map { width: 100%; border: 1px solid var(--line); border-radius: 8px; display: block; }
   .map-link { display: inline-block; margin-top: 10px; font-size: 0.9375rem; color: var(--blue-deep); }
 </style>
