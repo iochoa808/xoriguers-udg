@@ -6,4 +6,5 @@ tipus: Actuacio
 estat: publicat
 cancelada: false
 calendarUid: "48cp5g75f1ecfqecp4b570iqv8@google.com"
+lloc: "Carrer de les Hortes, 17001 Girona, Espanya"
 ---
