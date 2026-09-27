@@ -40,6 +40,12 @@ const pastAmbCastells = agenda
 const ultimaActuacio = pastAmbCastells[0];
 const ultimsCastells = ultimaActuacio?.data.castells ?? [];
 
+// each activity's description is its markdown body, so render them all
+const activitats = (await getCollection('activitats')).sort((a, b) => a.data.ordre - b.data.ordre);
+const activitatsAmbText = await Promise.all(
+  activitats.map(async (a) => ({ dades: a.data, Cos: (await render(a)).Content }))
+);
+
 const noticies = await getCollection('noticies', ({ data }) => data.estat === 'publicat');
 const ultimesNoticies = noticies.sort((a, b) => b.data.data.getTime() - a.data.data.getTime()).slice(0, 2);
 
@@ -117,6 +123,26 @@ const heroImatge = mediaUrl(base, inici?.data.imatge);
           ))}
         </div>
       </>
+    )}
+
+    {activitatsAmbText.length > 0 && (
+      <div class="activitats-block">
+        <div class="section-head">
+          <div class="eyebrow">No només fem castells</div>
+        </div>
+        <div class="activitats-grid">
+          {activitatsAmbText.map(({ dades, Cos }) => (
+            <div class="activitat">
+              {mediaUrl(base, dades.imatge) && (
+                <img class="activitat-foto" src={mediaUrl(base, dades.imatge)} alt="" loading="lazy" />
+              )}
+              <h3>{dades.nom}</h3>
+              {dades.quan && <div class="activitat-quan mono">{dades.quan}</div>}
+              <div class="activitat-text"><Cos /></div>
+            </div>
+          ))}
+        </div>
+      </div>
     )}
 
     {ultimesNoticies.length > 0 && (
@@ -232,6 +258,29 @@ const heroImatge = mediaUrl(base, inici?.data.imatge);
   .card-row h2 { font-size: 1.05rem; margin: 4px 0 2px; }
   .meta { font-size: 0.8125rem; color: var(--ink-soft); }
   .card-link { font-size: 0.8125rem; font-weight: 600; display: flex; align-items: center; gap: 6px; text-decoration: none; white-space: nowrap; }
+  .activitats-block { margin: 34px 0 12px; }
+  .activitats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 18px;
+    margin-top: 16px;
+  }
+  .activitat {
+    background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--yellow);
+    border-radius: 8px; padding: 18px 20px;
+  }
+  .activitat-foto {
+    width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 6px;
+    display: block; margin: -2px 0 12px;
+  }
+  .activitat h3 { font-size: 1.05rem; font-weight: 600; }
+  .activitat-quan {
+    font-size: 0.625rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--yellow-ink); margin-top: 4px;
+  }
+  .activitat-text { margin-top: 8px; font-size: 0.875rem; line-height: 1.55; color: var(--ink-soft); }
+  .activitat-text :global(p) { margin: 0; }
+
   .noticies-block { margin-bottom: 12px; }
   .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 8px; }
   .veure-totes { font-size: 0.8125rem; font-weight: 600; display: flex; align-items: center; gap: 6px; text-decoration: none; color: var(--blue-deep); }

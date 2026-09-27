@@ -1,5 +1,23 @@
 ---
 titol: Uneix-te als Xoriguers
+curs:
+  titol: Ens donen crèdits!
+  text: >-
+    El Curs d'Iniciació al Món Casteller és un curs teòric i pràctic: la
+    nomenclatura i l'estructura dels castells, la història del fet casteller i
+    els assajos. Cal participar en un mínim de quatre actuacions i fer una prova
+    escrita final.
+  dades:
+    - etiqueta: Crèdits
+      valor: 1 de lliure elecció cada any, fins a 4
+    - etiqueta: Durada
+      valor: 60 hores, el primer o el segon quadrimestre
+    - etiqueta: Assistència
+      valor: Mínim obligatori del 80% (48 hores)
+    - etiqueta: Preu
+      valor: 40 € (material no inclòs)
+    - etiqueta: Places
+      valor: Il·limitades
 assajos:
   - titol: Castellers
     clau: castellers

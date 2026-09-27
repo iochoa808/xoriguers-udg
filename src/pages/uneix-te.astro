@@ -16,6 +16,7 @@ const instagramUrl = isRealUrl(info?.data.contacteInstagram)
   : undefined;
 
 const assajos = pagina?.data.assajos ?? [];
+const curs = pagina?.data.curs;
 ---
 <Base title={pagina!.data.titol ?? 'Uneix-te'} heroImage={imatge}>
   <div class="wrap">
@@ -41,6 +42,23 @@ const assajos = pagina?.data.assajos ?? [];
         </div>
       </section>
     ))}
+
+    {curs && (curs.titol || curs.text || curs.dades.length > 0) && (
+      <section class="curs">
+        {curs.titol && <h2 class="curs-titol display">{curs.titol}</h2>}
+        {curs.text && <p class="curs-text">{curs.text}</p>}
+        {curs.dades.length > 0 && (
+          <dl class="curs-dades">
+            {curs.dades.map((d) => (
+              <div class="curs-dada">
+                <dt class="mono">{d.etiqueta}</dt>
+                <dd>{d.valor}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </section>
+    )}
 
     <div class="cta-row">
       {isRealUrl(info?.data.contacteEmail) && (
@@ -83,6 +101,29 @@ const assajos = pagina?.data.assajos ?? [];
   .assaig-text p { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--ink-soft); }
   .assaig-link { display: inline-block; margin-top: 14px; font-size: 0.875rem; font-weight: 600; }
   .sense-mapa { margin: 0; font-size: 0.875rem; color: var(--ink-soft); }
+
+  /* the credits are the strongest argument on the page, so they get the yellow */
+  .curs {
+    margin-top: 38px;
+    background: var(--yellow-bg);
+    border: 1px solid var(--yellow);
+    border-left: 4px solid var(--yellow);
+    border-radius: 8px;
+    padding: 24px 26px;
+  }
+  .curs-titol { font-size: 1.35rem; color: var(--yellow-ink); }
+  .curs-text { margin: 10px 0 0; font-size: 0.9375rem; line-height: 1.6; max-width: 62ch; }
+  .curs-dades {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px 22px;
+    margin: 20px 0 0;
+  }
+  .curs-dada dt {
+    font-size: 0.625rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--yellow-ink);
+  }
+  .curs-dada dd { margin: 3px 0 0; font-size: 0.9375rem; font-weight: 600; }
 
   .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 38px; }
 

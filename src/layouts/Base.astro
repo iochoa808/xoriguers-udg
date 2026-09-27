@@ -58,26 +58,22 @@ const ogImageUrl = bannerImage ? new URL(bannerImage, Astro.site).toString() : u
     </a>
     <nav class="site-links">
       <a href={`${base}uneix-te`}>Uneix-te</a>
+      <a href={`${base}agenda`}>Agenda</a>
+      <a href={`${base}castells`}>Historial</a>
+      <a href={`${base}galeria`}>Galeria</a>
+      <a href={`${base}noticies`}>Notícies</a>
       <details class="nav-group">
         <summary>La colla</summary>
         <div class="nav-dropdown-panel">
           <a href={`${base}la-colla`}>Qui som</a>
-          <a href={`${base}junta-tecnica`}>Junta Tècnica</a>
-          <a href={`${base}junta-directiva`}>Junta Directiva</a>
           <a href={`${base}xorimusics`}>Xorimúsics</a>
           <a href={`${base}mallarengues`}>Mallarengues</a>
+          <a href={`${base}junta-tecnica`}>Junta Tècnica</a>
+          <a href={`${base}junta-directiva`}>Junta Directiva</a>
+          <a href={`${base}col-laboradors`}>Col·laboradors</a>
+          <a href={`${base}documents`}>Documents</a>
         </div>
       </details>
-      <a href={`${base}xorimusics`}>Xorimúsics</a>
-      <details class="nav-group">
-        <summary>Castells</summary>
-        <div class="nav-dropdown-panel">
-          <a href={`${base}castells`}>Historial</a>
-          <a href={`${base}galeria`}>Galeria</a>
-        </div>
-      </details>
-      <a href={`${base}agenda`}>Agenda</a>
-      <a href={`${base}col-laboradors`}>Col·laboradors</a>
       <a href={`${base}merchandising`}>Merchandising</a>
     </nav>
   </header>
@@ -95,15 +91,43 @@ const ogImageUrl = bannerImage ? new URL(bannerImage, Astro.site).toString() : u
   </main>
 
   <footer class="site-footer">
-    <div class="footer-brand display">Xoriguers UdG</div>
-    <nav class="footer-links mono">
-      <a href={`${base}documents`}>Documents</a>
-      {isRealUrl(socials?.instagramUrl) && <a href={socials!.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>}
-      {isRealUrl(socials?.facebookUrl) && <a href={socials!.facebookUrl} target="_blank" rel="noreferrer">Facebook</a>}
-      {isRealUrl(socials?.twitterUrl) && <a href={socials!.twitterUrl} target="_blank" rel="noreferrer">Twitter</a>}
-      {isRealUrl(socials?.youtubeUrl) && <a href={socials!.youtubeUrl} target="_blank" rel="noreferrer">YouTube</a>}
+    {/* every page of the site is listed here, so nothing depends on finding a
+        submenu to be reachable */}
+    <nav class="footer-index">
+      <div class="footer-col">
+        <div class="footer-head mono">La colla</div>
+        <a href={`${base}la-colla`}>Qui som</a>
+        <a href={`${base}xorimusics`}>Xorimúsics</a>
+        <a href={`${base}mallarengues`}>Mallarengues</a>
+        <a href={`${base}junta-tecnica`}>Junta Tècnica</a>
+        <a href={`${base}junta-directiva`}>Junta Directiva</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-head mono">Castells</div>
+        <a href={`${base}agenda`}>Agenda</a>
+        <a href={`${base}castells`}>Historial de castells</a>
+        <a href={`${base}galeria`}>Galeria</a>
+        <a href={`${base}noticies`}>Notícies</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-head mono">Participa-hi</div>
+        <a href={`${base}uneix-te`}>Uneix-te</a>
+        <a href={`${base}merchandising`}>Merchandising</a>
+        <a href={`${base}col-laboradors`}>Col·laboradors</a>
+        <a href={`${base}documents`}>Documents</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-head mono">Segueix-nos</div>
+        {isRealUrl(socials?.instagramUrl) && <a href={socials!.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>}
+        {isRealUrl(socials?.facebookUrl) && <a href={socials!.facebookUrl} target="_blank" rel="noreferrer">Facebook</a>}
+        {isRealUrl(socials?.twitterUrl) && <a href={socials!.twitterUrl} target="_blank" rel="noreferrer">Twitter</a>}
+        {isRealUrl(socials?.youtubeUrl) && <a href={socials!.youtubeUrl} target="_blank" rel="noreferrer">YouTube</a>}
+      </div>
     </nav>
-    <div class="footer-note mono">Colla castellera universitària · Girona</div>
+    <div class="footer-baix">
+      <div class="footer-brand display">Xoriguers UdG</div>
+      <div class="footer-note mono">Colla castellera universitària · Girona</div>
+    </div>
   </footer>
 
   <style>
@@ -244,27 +268,44 @@ const ogImageUrl = bannerImage ? new URL(bannerImage, Astro.site).toString() : u
     .site-footer {
       background: var(--ink);
       color: var(--bg-deep);
-      padding: 44px 28px 32px;
+      padding: 44px 28px 28px;
       margin-top: 56px;
-      text-align: center;
     }
-    .footer-brand { font-size: 1.6rem; color: var(--bg); margin-bottom: 20px; }
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px 26px;
-      margin-bottom: 20px;
+    .footer-index {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 28px 24px;
+      max-width: 1000px;
+      margin: 0 auto 32px;
+      text-align: left;
     }
-    .footer-links a {
-      font-size: 0.75rem;
-      letter-spacing: 0.05em;
+    .footer-col { display: flex; flex-direction: column; gap: 9px; }
+    .footer-head {
+      font-size: 0.6875rem;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      font-weight: 600;
+      color: var(--yellow);
+      margin-bottom: 2px;
+    }
+    .footer-col a {
+      font-size: 0.875rem;
       color: var(--bg-deep);
       text-decoration: none;
+      width: fit-content;
     }
-    .footer-links a:hover { color: var(--yellow); }
+    .footer-col a:hover { color: var(--yellow); text-decoration: underline; }
+    .footer-baix {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding-top: 22px;
+      border-top: 1px solid rgba(234, 246, 252, 0.15);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .footer-brand { font-size: 1.35rem; color: var(--bg); }
     .footer-note {
       font-size: 0.75rem;
       color: rgba(234, 246, 252, 0.55);

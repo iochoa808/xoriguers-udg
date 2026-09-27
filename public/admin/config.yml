@@ -182,6 +182,24 @@ collections:
         fields:
           - { label: "Títol", name: "titol", widget: "string" }
           - { label: "Text de la crida", name: "body", widget: "markdown", hint: "Els horaris d'assaig i el contacte es mostren automàticament des de la pàgina 'La colla'." }
+          - label: "Curs de crèdits"
+            name: "curs"
+            widget: "object"
+            required: false
+            collapsed: false
+            fields:
+              - { label: "Títol", name: "titol", widget: "string", required: false }
+              - { label: "Text", name: "text", widget: "text", required: false, hint: "Què és el curs i què cal fer per aprovar-lo." }
+              - label: "Dades del curs"
+                name: "dades"
+                widget: "list"
+                required: false
+                label_singular: "Dada"
+                summary: "{{fields.etiqueta}}: {{fields.valor}}"
+                hint: "Crèdits, durada, assistència, preu, places… Es poden afegir i treure lliurement."
+                fields:
+                  - { label: "Etiqueta", name: "etiqueta", widget: "string" }
+                  - { label: "Valor", name: "valor", widget: "string" }
           - label: "Assajos"
             name: "assajos"
             widget: "list"
@@ -358,6 +376,21 @@ collections:
       - { label: "Logotip", name: "logo", widget: "image", required: false }
       - { label: "Web", name: "url", widget: "string", required: false }
       - { label: "Ordre", name: "ordre", widget: "number", required: false, value_type: "int" }
+
+  - name: "activitats"
+    label: "Activitats"
+    folder: "src/content/activitats"
+    create: true
+    identifier_field: "nom"
+    slug: "{{fields.nom}}"
+    summary: "{{fields.ordre}}. {{fields.nom}}"
+    sortable_fields: ["ordre", "nom"]
+    fields:
+      - { label: "Nom", name: "nom", widget: "string" }
+      - { label: "Quan", name: "quan", widget: "string", required: false, hint: "Quan se celebra: «Inici de curs», «Fires de Girona»…" }
+      - { label: "Descripció", name: "body", widget: "markdown", hint: "Text curt. Surt a la portada." }
+      - { label: "Fotografia", name: "imatge", widget: "image", required: false }
+      - { label: "Ordre", name: "ordre", widget: "number", required: false, value_type: "int", hint: "Ordre a la portada, de més petit a més gran." }
 
   - name: "documents"
     label: "Documents"

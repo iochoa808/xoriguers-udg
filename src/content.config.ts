@@ -69,10 +69,21 @@ const assaig = z.object({
   clau: z.preprocess(emptyToUndefined, z.string().optional()),
 });
 
+/** The university course, whose facts are a label/value list so they can be
+ *  corrected or added to without touching the page. */
+const curs = z.object({
+  titol: z.preprocess(emptyToUndefined, z.string().optional()),
+  text: z.preprocess(emptyToUndefined, z.string().optional()),
+  dades: z
+    .array(z.object({ etiqueta: z.string(), valor: z.string() }))
+    .default([]),
+});
+
 const pagines = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/pagines' }),
   schema: z.object({
     titol: z.string().optional(),
+    curs: curs.optional(),
     imatge: z.string().optional(),
     ctaText: z.string().optional(),
     /** Headings on the homepage's two columns, both editable. */
@@ -137,6 +148,17 @@ const patrocinadors = defineCollection({
   }),
 });
 
+/** The colla's social life: Oktoberfest, Barraques, Calçotada, Aniverfest. */
+const activitats = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/activitats' }),
+  schema: z.object({
+    nom: z.string(),
+    quan: z.preprocess(emptyToUndefined, z.string().optional()),
+    imatge: z.string().optional(),
+    ordre: z.preprocess(emptyToUndefined, z.number().default(0)),
+  }),
+});
+
 const documents = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/documents' }),
   schema: z.object({
@@ -172,6 +194,7 @@ export const collections = {
   juntaTecnica,
   productes,
   patrocinadors,
+  activitats,
   documents,
   configuracio,
 };
