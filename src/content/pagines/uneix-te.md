@@ -15,3 +15,5 @@ assajos:
     ubicacio: Marrecs de Salt
 ---
 No cal experiència ni forma física prèvia: cada temporada comencem de zero amb gent nova. Vine un dia a l'assaig, a formar part de la pinya o a tocar amb els nostres músics, i si t'agrada, ja ets un xoriguer més. Escriu-nos o passa't per un assaig quan vulguis, no cal avisar abans.
+
+Per ser xoriguer o xoriguera només cal pertànyer a la comunitat universitària de la UdG, de la UNET o de la UOC: tant hi fa si ets alumne, professorat o personal d'administració i serveis.

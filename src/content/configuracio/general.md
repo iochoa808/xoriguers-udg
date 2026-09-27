@@ -1,6 +1,8 @@
 ---
-instagramUrl: https://instagram.com/xoriguersudg
+instagramUrl: https://www.instagram.com/xoriguersudg
 youtubeUrl: "[URL DEL CANAL DE YOUTUBE]"
+facebookUrl: https://www.facebook.com/xoriguers.delaudg/
+twitterUrl: https://twitter.com/xoriguersudg
 merchandiseEmail: botiga@xoriguers.udg.cat
 googleCalendarEmbedUrl: https://calendar.google.com/calendar/embed?src=ace071f1ecd374056d429f50f450b07256fbda7185ce8fc11e524ad42e338e3e%40group.calendar.google.com&ctz=Europe%2FMadrid
 contacteComercialEmail: patrocinis@xoriguers.udg.cat

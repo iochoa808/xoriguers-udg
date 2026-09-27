@@ -152,6 +152,8 @@ const configuracio = defineCollection({
   schema: z.object({
     instagramUrl: z.string().optional(),
     youtubeUrl: z.string().optional(),
+    facebookUrl: z.string().optional(),
+    twitterUrl: z.string().optional(),
     merchandiseEmail: z.string().optional(),
     googleCalendarEmbedUrl: z.string().optional(),
     contacteComercialEmail: z.string().optional(),

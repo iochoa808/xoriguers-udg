@@ -98,8 +98,10 @@ const ogImageUrl = bannerImage ? new URL(bannerImage, Astro.site).toString() : u
     <div class="footer-brand display">Xoriguers UdG</div>
     <nav class="footer-links mono">
       <a href={`${base}documents`}>Documents</a>
-      {isRealUrl(socials?.youtubeUrl) && <a href={socials!.youtubeUrl} target="_blank" rel="noreferrer">YouTube</a>}
       {isRealUrl(socials?.instagramUrl) && <a href={socials!.instagramUrl} target="_blank" rel="noreferrer">Instagram</a>}
+      {isRealUrl(socials?.facebookUrl) && <a href={socials!.facebookUrl} target="_blank" rel="noreferrer">Facebook</a>}
+      {isRealUrl(socials?.twitterUrl) && <a href={socials!.twitterUrl} target="_blank" rel="noreferrer">Twitter</a>}
+      {isRealUrl(socials?.youtubeUrl) && <a href={socials!.youtubeUrl} target="_blank" rel="noreferrer">YouTube</a>}
     </nav>
     <div class="footer-note mono">Colla castellera universitària · Girona</div>
   </footer>

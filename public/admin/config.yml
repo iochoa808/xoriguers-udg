@@ -383,6 +383,8 @@ collections:
         fields:
           - { label: "URL Instagram", name: "instagramUrl", widget: "string", required: false }
           - { label: "URL YouTube", name: "youtubeUrl", widget: "string", required: false }
+          - { label: "URL Facebook", name: "facebookUrl", widget: "string", required: false }
+          - { label: "URL Twitter", name: "twitterUrl", widget: "string", required: false }
           - { label: "Email per a reserves de merchandising", name: "merchandiseEmail", widget: "string", required: false, hint: "Rep les reserves que es facin des de la fitxa de cada producte" }
           - label: "URL d'inserció de Google Calendar"
             name: "googleCalendarEmbedUrl"
