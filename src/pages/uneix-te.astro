@@ -98,7 +98,11 @@ const curs = pagina?.data.curs;
     color: var(--blue-deep);
     margin-bottom: 10px;
   }
-  .assaig-text p { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--ink-soft); }
+  /* the text can hold more than one line, as the rain fallback does */
+  .assaig-text p {
+    margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--ink-soft);
+    white-space: pre-line;
+  }
   .assaig-link { display: inline-block; margin-top: 14px; font-size: 0.875rem; font-weight: 600; }
   .sense-mapa { margin: 0; font-size: 0.875rem; color: var(--ink-soft); }
 
