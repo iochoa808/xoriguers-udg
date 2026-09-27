@@ -3,7 +3,10 @@ titol: Uneix-te als Xoriguers
 assajos:
   - titol: Castellers
     clau: castellers
-    text: Dimarts i dijous, 12:30–14:30.
+    text: |-
+      Dimarts i dijous, 12:30–14:30.
+
+      Alternativament, en cas de pluja, assajem a la facultat de Dret
     ubicacio: 41.964444,2.829417
   - titol: XoriMúsics
     clau: musics
