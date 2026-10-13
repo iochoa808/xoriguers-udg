@@ -1,3 +1,21 @@
+> **Document històric.** Aquesta és la proposta inicial, escrita abans de
+> construir la web. Es conserva perquè explica *per què* el sistema és així: el
+> CMS com a capa sobre Git, els tipus d'usuari, i què passa si DecapBridge
+> desapareix.
+>
+> No descriu l'estat actual. Hi ha dues diferències importants:
+>
+> - **L'editorial workflow (esborrany → revisió → publicat) no existeix.** Qui
+>   edita prem Desa i es publica. Ho fan una o dues persones i no hi ha res a
+>   revisar. Vegeu la secció 7, que ja no s'aplica.
+> - **Els castells no es guarden a part.** Cada actuació de l'agenda porta els
+>   seus castells, i l'historial és simplement el passat de l'agenda. Vegeu la
+>   secció 11, que proposava una altra cosa.
+>
+> Per a l'estat actual: [`docs/architecture.md`](architecture.md).
+
+---
+
 Es vol fer una página web per la colla castellera xoriguers de la udg.
 Ara que ja tenim decidit **GitHub Pages + Astro + Decap CMS + DecapBridge**, jo ho plantejaria com un petit sistema editorial per a la colla, no simplement com una web estàtica.
 

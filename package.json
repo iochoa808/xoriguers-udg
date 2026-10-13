@@ -3,6 +3,10 @@
   "type": "module",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "comment": "the scripts import .ts helpers directly, which Node strips types for from 22.18",
+    "node": ">=22.18"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",

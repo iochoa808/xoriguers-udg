@@ -310,6 +310,12 @@ const ogImageUrl = bannerImage ? new URL(bannerImage, Astro.site).toString() : u
       font-size: 0.75rem;
       color: rgba(234, 246, 252, 0.55);
     }
+
+    /* the nav and the footer keep the same side margin as the pages between
+       them, which on a phone is narrower */
+    @media (max-width: 720px) {
+      .site-nav, .site-footer { padding-left: 18px; padding-right: 18px; }
+    }
   </style>
 </body>
 </html>

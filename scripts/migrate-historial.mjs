@@ -4,6 +4,14 @@
  *
  *   node scripts/migrate-historial.mjs [--dry] [--force]
  *
+ * ALREADY RUN, in commit 8b4f2cd: the 282 diades in src/content/agenda are its
+ * output, and the CSV it reads is no longer in the tree. It is kept as the
+ * record of how those entries were derived, and for the four rows whose dates
+ * were unusable and which were therefore never migrated. To run it again, first
+ * restore its input:
+ *
+ *   git show 2c57ebc:src/data/historial_castells.csv > src/data/historial_castells.csv
+ *
  * Refuses to write while any row carrying content has no usable date or an
  * impossible one, because guessing a date would put invented facts into the
  * colla's permanent record. --force skips those rows instead.
@@ -11,7 +19,7 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-const { parseHistorial } = await import('../src/lib/historial.ts');
+const { parseHistorial } = await import('../src/lib/registre-csv.ts');
 const { classificaEsdeveniment } = await import('../src/lib/esdeveniment.ts');
 
 const CSV = 'src/data/historial_castells.csv';

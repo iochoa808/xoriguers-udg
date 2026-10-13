@@ -1,7 +1,26 @@
+/**
+ * Every shape of content on the site. This is the closest thing the project has
+ * to a database schema, and the first file to read.
+ *
+ * Field names are Catalan because they are what the CMS shows; the collections
+ * are the folders under `src/content`. A schema error fails the build on
+ * purpose: bad content should never reach the site.
+ *
+ * Whatever you add here, add to `public/admin/config.yml` in the same commit —
+ * Decap silently drops any field its own config does not declare. See
+ * `docs/cms.md`.
+ */
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
+/** The CMS writes "" for a cleared field; the schemas want it to be absent. */
 const emptyToUndefined = (v: unknown) => (v === '' ? undefined : v);
+
+/**
+ * Whether an entry is built into the site at all. There is no review step —
+ * esborrany simply keeps something off the site until it is ready.
+ */
+const estat = z.enum(['esborrany', 'publicat']).default('publicat');
 
 const castellFet = z.object({
   castell: z.string(),
@@ -24,7 +43,7 @@ const agenda = defineCollection({
     cartell: z.string().optional(),
     collesParticipants: z.array(z.string()).default([]),
     mostrarPortada: z.boolean().default(false),
-    estat: z.enum(['esborrany', 'revisio', 'publicat']).default('publicat'),
+    estat,
     cancelada: z.boolean().default(false),
     castells: z.array(castellFet).default([]),
     /** Milestone notes from the registre: "Primer 5d7 de la historia". */
@@ -44,7 +63,7 @@ const noticies = defineCollection({
     data: z.coerce.date(),
     resum: z.string(),
     imatge: z.string().optional(),
-    estat: z.enum(['esborrany', 'revisio', 'publicat']).default('publicat'),
+    estat,
   }),
 });
 
@@ -55,7 +74,7 @@ const galeria = defineCollection({
     data: z.coerce.date(),
     portada: z.string().optional(),
     fotos: z.array(z.string()).default([]),
-    estat: z.enum(['esborrany', 'revisio', 'publicat']).default('publicat'),
+    estat,
   }),
 });
 
@@ -90,8 +109,6 @@ const pagines = defineCollection({
     /** Headings on the homepage's two columns, both editable. */
     presentacioTitol: z.preprocess(emptyToUndefined, z.string().optional()),
     properesTitol: z.preprocess(emptyToUndefined, z.string().optional()),
-    assajosHorari: z.string().optional(),
-    assajosLloc: z.string().optional(),
     assajos: z.array(assaig).default([]),
     contacteEmail: z.string().optional(),
     contacteInstagram: z.string().optional(),

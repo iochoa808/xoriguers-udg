@@ -8,6 +8,11 @@ const pagina = await getEntry('pagines', 'la-colla');
 const { Content } = await render(pagina);
 const base = import.meta.env.BASE_URL;
 const imatge = mediaUrl(base, pagina.data.imatge);
+
+// the assaig blocks on Uneix-te are the one place the schedule is written, so
+// this page shows them rather than keeping a second copy that can drift
+const uneixTe = await getEntry('pagines', 'uneix-te');
+const assajos = (uneixTe?.data.assajos ?? []).filter((a) => a.text);
 ---
 <Base title={pagina.data.titol ?? 'La colla'} heroImage={imatge}>
   <div class="wrap">
@@ -15,12 +20,12 @@ const imatge = mediaUrl(base, pagina.data.imatge);
       <Content />
     </div>
     <div class="grid">
-      {(isRealUrl(pagina.data.assajosHorari) || isRealUrl(pagina.data.assajosLloc)) && (
+      {assajos.map((assaig) => (
         <div class="card">
-          <div class="eyebrow">Assajos</div>
-          <p>{[pagina.data.assajosHorari, pagina.data.assajosLloc].filter((v) => isRealUrl(v)).join(' — ')}.</p>
+          <div class="eyebrow">{assaig.titol}</div>
+          <p>{assaig.text}</p>
         </div>
-      )}
+      ))}
       {(isRealUrl(pagina.data.contacteEmail) || isRealUrl(pagina.data.contacteInstagram)) && (
         <div class="card">
           <div class="eyebrow">Contacte</div>
@@ -28,6 +33,7 @@ const imatge = mediaUrl(base, pagina.data.imatge);
         </div>
       )}
     </div>
+    <a class="mes" href={`${base}uneix-te`}>Com venir a assajar →</a>
   </div>
 </Base>
 
@@ -36,5 +42,7 @@ const imatge = mediaUrl(base, pagina.data.imatge);
   .lead { font-size: 1.0625rem; line-height: 1.65; color: var(--ink-soft); max-width: 60ch; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin: 28px 0; }
   .card { background: #fff; border: 1px solid var(--line); border-top: 3px solid var(--blue); border-radius: 8px; padding: 18px 20px; }
-  .card p { margin: 8px 0 0; font-size: 0.9375rem; }
+  /* an assaig block's text can hold more than one line, as the rain fallback does */
+  .card p { margin: 8px 0 0; font-size: 0.9375rem; white-space: pre-line; }
+  .mes { font-size: 0.9375rem; font-weight: 600; }
 </style>

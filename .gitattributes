@@ -1,0 +1,12 @@
+# Everything in here is stored and checked out with LF line endings, whatever
+# the machine's core.autocrlf says. This repo is edited from Windows, from WSL,
+# and by Decap CMS through the GitHub API — which always writes LF — so without
+# this a file's endings depend on who touched it last.
+* text=auto eol=lf
+
+# Not text, and must never be rewritten
+*.pdf binary
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.ico binary

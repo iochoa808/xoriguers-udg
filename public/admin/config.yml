@@ -79,7 +79,9 @@ collections:
       - label: "Estat"
         name: "estat"
         widget: "select"
-        options: ["esborrany", "revisio", "publicat"]
+        options:
+          - { label: "Publicat (es veu a la web)", value: "publicat" }
+          - { label: "Esborrany (no es publica)", value: "esborrany" }
         default: "publicat"
       - { label: "Cancel·lada", name: "cancelada", widget: "boolean", default: false }
       - { label: "Descripció", name: "body", widget: "markdown" }
@@ -121,7 +123,9 @@ collections:
       - label: "Estat"
         name: "estat"
         widget: "select"
-        options: ["esborrany", "revisio", "publicat"]
+        options:
+          - { label: "Publicat (es veu a la web)", value: "publicat" }
+          - { label: "Esborrany (no es publica)", value: "esborrany" }
         default: "publicat"
       - { label: "Cos", name: "body", widget: "markdown" }
 
@@ -149,7 +153,9 @@ collections:
       - label: "Estat"
         name: "estat"
         widget: "select"
-        options: ["esborrany", "revisio", "publicat"]
+        options:
+          - { label: "Publicat (es veu a la web)", value: "publicat" }
+          - { label: "Esborrany (no es publica)", value: "esborrany" }
         default: "publicat"
 
   - name: "pagines"
@@ -172,8 +178,6 @@ collections:
           - { label: "Títol", name: "titol", widget: "string" }
           - { label: "Text principal", name: "body", widget: "markdown" }
           - { label: "Fotografia", name: "imatge", widget: "image", required: false }
-          - { label: "Horari d'assajos", name: "assajosHorari", widget: "string" }
-          - { label: "Lloc d'assajos", name: "assajosLloc", widget: "string" }
           - { label: "Email de contacte", name: "contacteEmail", widget: "string" }
           - { label: "Instagram", name: "contacteInstagram", widget: "string" }
       - name: "uneix_te"
@@ -181,7 +185,7 @@ collections:
         file: "src/content/pagines/uneix-te.md"
         fields:
           - { label: "Títol", name: "titol", widget: "string" }
-          - { label: "Text de la crida", name: "body", widget: "markdown", hint: "Els horaris d'assaig i el contacte es mostren automàticament des de la pàgina 'La colla'." }
+          - { label: "Text de la crida", name: "body", widget: "markdown", hint: "Text d'entrada de la pàgina. Els horaris i els mapes surten dels blocs d'assaig de sota." }
           - label: "Curs de crèdits"
             name: "curs"
             widget: "object"
@@ -196,7 +200,7 @@ collections:
                 required: false
                 label_singular: "Dada"
                 summary: "{{fields.etiqueta}}: {{fields.valor}}"
-                hint: "Crèdits, durada, assistència, preu, places… Es poden afegir i treure lliurement."
+                hint: "Crèdits, preu… Cada dada surt com una etiqueta i el seu valor dins el quadre groc. Es poden afegir i treure lliurement."
                 fields:
                   - { label: "Etiqueta", name: "etiqueta", widget: "string" }
                   - { label: "Valor", name: "valor", widget: "string" }
@@ -206,7 +210,7 @@ collections:
             required: false
             label_singular: "Assaig"
             summary: "{{fields.titol}} · {{fields.ubicacio}}"
-            hint: "Cada bloc surt a la pàgina amb el text a l'esquerra i el seu mapa a la dreta, en aquest ordre."
+            hint: "Cada bloc surt amb el seu text i el seu mapa, en aquest ordre. El text també es mostra a «La colla», i el bloc amb la clau 'musics' a la pàgina dels Xorimúsics."
             fields:
               - { label: "Títol", name: "titol", widget: "string" }
               - { label: "Text", name: "text", widget: "text", required: false, hint: "Curt: quan s'assaja." }

@@ -88,6 +88,9 @@ const temporades = [...new Set(diades.map((d) => d.temporada))].map((temporada) 
 
 // a season missing from the registre is shown as such rather than skipped over
 const anys = temporades.map((t) => t.any);
+// the seasons arrive in whatever order the collection was read, so the earliest
+// one has to be looked for rather than taken off either end
+const primeraTemporada = temporades.reduce((a, b) => (a.any <= b.any ? a : b)).temporada;
 type Fila = (typeof temporades)[number] | { buida: true; temporada: string; any: number };
 const files: Fila[] = [];
 for (let any = Math.max(...anys); any >= Math.min(...anys); any--) {
@@ -167,7 +170,7 @@ const pillClass: Record<string, string> = {
       </div>
     )}
     <p class="context">
-      Totes les actuacions de la colla des de la temporada {temporades[temporades.length - 1].temporada}:
+      Totes les actuacions de la colla des de la temporada {primeraTemporada}:
       <b>{diades.length}</b> diades, <b>{totalCastells.toLocaleString('ca-ES')}</b> castells i
       <b>{temporades.length}</b> temporades.
     </p>
@@ -522,7 +525,7 @@ const pillClass: Record<string, string> = {
   .search-wrap { display: flex; align-items: center; gap: 10px; }
   input[type='search'], select {
     font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.8125rem; padding: 7px 11px;
-    border: 1px solid var(--line-firm, #b9d7e5); border-radius: 4px; background: var(--bg); color: var(--ink);
+    border: 1px solid var(--line-firm); border-radius: 4px; background: var(--bg); color: var(--ink);
   }
   input[type='search'] { width: 220px; max-width: 46vw; }
   input[type='search']:focus-visible, select:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
@@ -545,7 +548,7 @@ const pillClass: Record<string, string> = {
   .grouphead, .resum tr.gamma th {
     font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.6875rem;
     letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue-deep); font-weight: 600;
-    background: var(--bg-deep); border-bottom: 1px solid var(--line-firm, #b9d7e5); padding: 8px 4px;
+    background: var(--bg-deep); border-bottom: 1px solid var(--line-firm); padding: 8px 4px;
   }
   .grouphead span { color: var(--ink-soft); font-weight: 400; letter-spacing: 0.04em; text-transform: none; }
   .agrupada .ditem:not(:first-child) .grouphead:not([hidden]) { margin-top: 14px; }
@@ -581,12 +584,12 @@ const pillClass: Record<string, string> = {
   }
   .season-n.forta { color: var(--blue-deep); font-weight: 600; }
   .season-tops { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; }
-  .season-cap { color: var(--ink-faint, #8aa3ae); font-size: 0.8125rem; }
-  .chev { color: var(--ink-faint, #8aa3ae); transition: transform 0.15s; justify-self: end; }
+  .season-cap { color: var(--ink-faint); font-size: 0.8125rem; }
+  .chev { color: var(--ink-faint); transition: transform 0.15s; justify-self: end; }
   .season.open .chev { transform: rotate(90deg); }
   .season.buida .season-head { cursor: default; }
   .season.buida .season-head:hover { background: transparent; }
-  .season.buida .season-year { color: var(--ink-faint, #8aa3ae); }
+  .season.buida .season-year { color: var(--ink-faint); }
   .season-body { padding: 2px 4px 18px; }
 
   .diada {
@@ -606,7 +609,7 @@ const pillClass: Record<string, string> = {
   .obs.is-fita { color: var(--yellow-ink); font-weight: 600; }
   .raw-note {
     font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 0.75rem;
-    color: var(--ink-faint, #8aa3ae); margin-top: 5px;
+    color: var(--ink-faint); margin-top: 5px;
   }
 
   /* ---------- resum històric ---------- */
