@@ -275,7 +275,7 @@ const ogImageUrl = bannerImage ? new URL(bannerImage, Astro.site).toString() : u
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       gap: 28px 24px;
-      max-width: 1000px;
+      max-width: var(--ample);
       margin: 0 auto 32px;
       text-align: left;
     }
@@ -295,7 +295,7 @@ const ogImageUrl = bannerImage ? new URL(bannerImage, Astro.site).toString() : u
     }
     .footer-col a:hover { color: var(--yellow); text-decoration: underline; }
     .footer-baix {
-      max-width: 1000px;
+      max-width: var(--ample);
       margin: 0 auto;
       padding-top: 22px;
       border-top: 1px solid rgba(234, 246, 252, 0.15);

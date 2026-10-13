@@ -97,7 +97,8 @@ const descripcio = disponible ? `${entry.data.nom} — ${entry.data.preu}€` : 
 )}
 
 <style>
-  .wrap { max-width: 560px; margin: 0 auto; padding: 40px 28px 60px; }
+  /* one product, so deliberately narrower than the rest of the site */
+  .wrap { max-width: 620px; margin: 0 auto; padding: 40px 28px 60px; }
   .back { display: block; margin-bottom: 14px; color: var(--ink-soft); text-decoration: none; }
   .foto-principal { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; display: block; }
   .foto-principal.placeholder {
