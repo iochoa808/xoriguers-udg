@@ -2,11 +2,10 @@
 titol: Uneix-te als Xoriguers
 curs:
   titol: Ens donen crèdits!
-  text: >-
-    El Curs d'Iniciació al Món Casteller és un curs teòric i pràctic: la
+  text: "El Curs d'Iniciació al Món Casteller és un curs teòric i pràctic: la
     nomenclatura i l'estructura dels castells, la història del fet casteller i
     els assajos. Cal participar en un mínim de quatre actuacions i fer una prova
-    escrita final.
+    escrita final."
   dades:
     - etiqueta: Crèdits
       valor: 1 de lliure elecció cada any, fins a 4
@@ -28,11 +27,11 @@ assajos:
     ubicacio: 41.964444,2.829417
   - titol: XoriMúsics
     clau: musics
-    text: Dimarts i dijous, 19:30.
+    text: Dimarts i dijous, 19:30 al barracó M-25
     ubicacio: 41°57'47.1"N 2°49'45.8"E
-  - titol: També assagem els dijous vespre
+  - titol: XORIFITS
     clau: vespre
-    text: Al local dels Marrecs de Salt.
+    text: També assagem els dijous vespre, Al local dels Marrecs de Salt.
     ubicacio: Marrecs de Salt
 ---
 No cal experiència ni forma física prèvia: cada temporada comencem de zero amb gent nova. Vine un dia a l'assaig, a formar part de la pinya o a tocar amb els nostres músics, i si t'agrada, ja ets un xoriguer més. Escriu-nos o passa't per un assaig quan vulguis, no cal avisar abans.
