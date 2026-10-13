@@ -20,45 +20,49 @@ const curs = pagina?.data.curs;
 ---
 <Base title={pagina!.data.titol ?? 'Uneix-te'} heroImage={imatge}>
   <div class="wrap">
-    <div class="lead">
-      <Content />
+    <div class="obertura">
+      <div class="lead">
+        <Content />
+      </div>
+
+      {curs && (curs.titol || curs.text || curs.dades.length > 0) && (
+        <section class="curs">
+          {curs.titol && <h2 class="curs-titol display">{curs.titol}</h2>}
+          {curs.text && <p class="curs-text">{curs.text}</p>}
+          {curs.dades.length > 0 && (
+            <dl class="curs-dades">
+              {curs.dades.map((d) => (
+                <div class="curs-dada">
+                  <dt class="mono">{d.etiqueta}</dt>
+                  <dd>{d.valor}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </section>
+      )}
     </div>
 
-    {assajos.map((assaig) => (
-      <section class="assaig">
-        <div class="assaig-text">
-          <h2 class="assaig-titol display">{assaig.titol}</h2>
-          {assaig.text && <p>{assaig.text}</p>}
-          {assaig.clau === 'musics' && (
-            <a class="assaig-link" href={`${base}xorimusics`}>Més sobre els Xorimúsics →</a>
-          )}
-        </div>
-        <div class="assaig-mapa">
-          {assaig.ubicacio ? (
-            <MapEmbed ubicacio={assaig.ubicacio} label={`On assaja: ${assaig.titol}`} relacio="4 / 3" />
-          ) : (
-            <p class="sense-mapa">Encara no s'ha indicat cap ubicació.</p>
-          )}
-        </div>
-      </section>
-    ))}
-
-    {curs && (curs.titol || curs.text || curs.dades.length > 0) && (
-      <section class="curs">
-        {curs.titol && <h2 class="curs-titol display">{curs.titol}</h2>}
-        {curs.text && <p class="curs-text">{curs.text}</p>}
-        {curs.dades.length > 0 && (
-          <dl class="curs-dades">
-            {curs.dades.map((d) => (
-              <div class="curs-dada">
-                <dt class="mono">{d.etiqueta}</dt>
-                <dd>{d.valor}</dd>
-              </div>
-            ))}
-          </dl>
-        )}
-      </section>
-    )}
+    <div class="assajos-grid">
+      {assajos.map((assaig) => (
+        <section class="assaig">
+          <div class="assaig-text">
+            <h2 class="assaig-titol display">{assaig.titol}</h2>
+            {assaig.text && <p>{assaig.text}</p>}
+            {assaig.clau === 'musics' && (
+              <a class="assaig-link" href={`${base}xorimusics`}>Més sobre els Xorimúsics →</a>
+            )}
+          </div>
+          <div class="assaig-mapa">
+            {assaig.ubicacio ? (
+              <MapEmbed ubicacio={assaig.ubicacio} label={`On assaja: ${assaig.titol}`} relacio="4 / 3" />
+            ) : (
+              <p class="sense-mapa">Encara no s'ha indicat cap ubicació.</p>
+            )}
+          </div>
+        </section>
+      ))}
+    </div>
 
     <div class="cta-row">
       {isRealUrl(info?.data.contacteEmail) && (
@@ -79,20 +83,36 @@ const curs = pagina?.data.curs;
 </Base>
 
 <style>
-  .wrap { max-width: 900px; margin: 0 auto; padding: 40px 28px 60px; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 40px 28px 60px; }
   .lead { font-size: 1.0625rem; line-height: 1.65; color: var(--ink-soft); max-width: 62ch; }
   .lead :global(p) { margin: 0; }
 
-  /* each assaig reads as text on the left and its map on the right */
-  .assaig {
+  /* the intro and the credits sit side by side */
+  .obertura {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+
+  /* the assajos pair up, castellers beside musics */
+  .assajos-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 40px;
+  }
+  .assaig { padding-top: 22px; border-top: 2px solid var(--blue); }
+  .assaig-mapa { margin-top: 16px; }
+  /* an odd one left over spans the width, text beside its map rather than above */
+  .assaig:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 28px;
     align-items: start;
-    margin-top: 34px;
-    padding-top: 26px;
-    border-top: 1px solid var(--line);
   }
+  .assaig:last-child:nth-child(odd) .assaig-mapa { margin-top: 0; }
   .assaig-titol {
     font-size: 1.35rem;
     color: var(--blue-deep);
@@ -108,7 +128,6 @@ const curs = pagina?.data.curs;
 
   /* the credits are the strongest argument on the page, so they get the yellow */
   .curs {
-    margin-top: 38px;
     background: var(--yellow-bg);
     border: 1px solid var(--yellow);
     border-left: 4px solid var(--yellow);
@@ -131,7 +150,10 @@ const curs = pagina?.data.curs;
 
   .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 38px; }
 
-  @media (max-width: 760px) {
-    .assaig { grid-template-columns: 1fr; gap: 16px; }
+  @media (max-width: 860px) {
+    .obertura { grid-template-columns: 1fr; gap: 26px; }
+    .assajos-grid { grid-template-columns: 1fr; gap: 26px; }
+    .assaig:last-child:nth-child(odd) { grid-template-columns: 1fr; gap: 16px; }
+    .assaig:last-child:nth-child(odd) .assaig-mapa { margin-top: 16px; }
   }
 </style>
