@@ -67,6 +67,7 @@ const assaig = z.object({
   ubicacio: z.preprocess(emptyToUndefined, z.string().optional()),
   /** Lets another page point at one block, e.g. Xorimúsics at "musics". */
   clau: z.preprocess(emptyToUndefined, z.string().optional()),
+  fotos: z.array(z.string()).default([]),
 });
 
 /** The university course, whose facts are a label/value list so they can be

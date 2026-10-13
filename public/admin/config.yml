@@ -212,6 +212,13 @@ collections:
               - { label: "Text", name: "text", widget: "text", required: false, hint: "Curt: quan s'assaja." }
               - { label: "Ubicació", name: "ubicacio", widget: "string", required: false, hint: "Coordenades 'latitud,longitud' o el nom del lloc. És el que busca el mapa." }
               - { label: "Clau", name: "clau", widget: "string", required: false, hint: "Només si una altra pàgina ha d'apuntar aquí. 'musics' és el que fa servir la pàgina dels Xorimúsics." }
+              - label: "Fotografies"
+                name: "fotos"
+                widget: "list"
+                required: false
+                label_singular: "Fotografia"
+                hint: "Surten en una filera a sota del bloc. Es poden deixar buides."
+                field: { label: "Fotografia", name: "foto", widget: "image" }
           - { label: "Fotografia", name: "imatge", widget: "image", required: false }
       - name: "merchandising"
         label: "Merchandising"
